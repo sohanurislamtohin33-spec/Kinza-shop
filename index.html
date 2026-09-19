@@ -79,12 +79,27 @@ import { getFirestore, collection, onSnapshot, addDoc, query, orderBy } from "ht
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCXx-2V4v2y1z8Kz9_example_REPLACE_WITH_YOURS",
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAOf_bi5nMZm5Cb7nuxe4cEB63MkciwcU0",
   authDomain: "kiza-shop-6ee3c.firebaseapp.com",
   projectId: "kiza-shop-6ee3c",
   storageBucket: "kiza-shop-6ee3c.firebasestorage.app",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
+  messagingSenderId: "876648757427",
+  appId: "1:876648757427:web:dac218cde5ac290ad2d8c6",
+  measurementId: "G-H7JBEFCX35"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 };
 //!!! উপরের Config টা Firebase -> Project Settings -> Your Apps থেকে Copy করে Replace করো!!!
 
