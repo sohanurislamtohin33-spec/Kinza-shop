@@ -1,191 +1,125 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiza Shop - Best Online Shop BD</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KINZA SHOP</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#f5f5f5}
-.header{background:#fff;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 5px rgba(0,0,0,.1)}
-.logo{font-weight:bold;font-size:20px;color:#e91e63}
-.header-right{display:flex;gap:15px;align-items:center}
-.cart-icon{position:relative;cursor:pointer}
-.cart-count{position:absolute;top:-8px;right:-8px;background:#e91e63;color:#fff;font-size:10px;padding:2px 5px;border-radius:50%}
-.banner{background:#fff;padding:10px;display:flex;gap:10px;overflow-x:auto}
-.banner img{width:100%;border-radius:8px;height:150px;object-fit:cover}
-.search-bar{background:#fff;padding:10px;display:flex;gap:10px;position:sticky;top:50px;z-index:99}
-.search-bar input{flex:1;padding:10px;border:1px solid #ddd;border-radius:20px;background:#f1f1f1}
-.cats{background:#fff;padding:10px;display:flex;gap:12px;overflow-x:auto;white-space:nowrap}
-.cat{flex:0 0 auto;text-align:center;cursor:pointer;padding:6px 12px;border-radius:20px;border:1px solid #eee;font-size:13px}
-.cat.active{background:#e91e63;color:#fff}
-.section-title{padding:15px 10px 5px;font-weight:bold}
-.product-grid{padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{background:#fff;border-radius:8px;padding:8px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-.card img{width:100%;height:170px;object-fit:contain;background:#f9f9f9;border-radius:6px}
-.card .t{font-size:13px;height:32px;overflow:hidden;margin:6px 0}
-.card .p{color:#e91e63;font-weight:bold;font-size:14px}
-.card .old{color:#888;font-size:11px;text-decoration:line-through;margin-left:5px}
-.card .r{font-size:11px;color:#ff9800}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee;z-index:100}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:15px}
-.modal-box{background:#fff;width:100%;max-width:400px;border-radius:10px;padding:15px;max-height:90vh;overflow:auto}
-.btn{width:100%;padding:12px;background:#e91e63;color:#fff;border:none;border-radius:6px;font-weight:bold;margin-top:10px;cursor:pointer}
-.whatsapp{position:fixed;bottom:70px;right:15px;background:#25d366;color:#fff;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:25px;z-index:99;text-decoration:none}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{background:#f2f2f2}
+.header{background:#e91e63;padding:10px 12px;color:#fff;position:sticky;top:0;z-index:100}
+.top{display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:900;font-size:22px;letter-spacing:1px}
+.right{display:flex;gap:12px;align-items:center;font-size:14px}
+.cart{position:relative;cursor:pointer}.cnt{position:absolute;top:-8px;right:-8px;background:#fff;color:#e91e63;border-radius:50%;font-size:10px;padding:2px 5px;font-weight:bold}
+.searchWrap{margin-top:10px;background:#fff;border-radius:8px;display:flex;align-items:center;padding:8px 12px}
+.searchWrap input{flex:1;border:none;outline:none;font-size:14px}
+.cats{background:#fff;padding:10px 8px;display:flex;gap:8px;overflow-x:auto}
+.cat{border:1px solid #eee;padding:6px 14px;border-radius:20px;white-space:nowrap;font-size:13px;cursor:pointer}
+.cat.active{background:#e91e63;color:#fff;border-color:#e91e63}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+.card{background:#fff;border-radius:8px;padding:6px}
+.card img{width:100%;height:160px;object-fit:contain;background:#fff}
+.t{font-size:12px;height:30px;overflow:hidden;margin:4px 0}
+.p{color:#e91e63;font-weight:bold;font-size:14px}.old{color:#999;font-size:11px;text-decoration:line-through;margin-left:4px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center;padding:15px}
+.box{background:#fff;width:100%;max-width:380px;border-radius:12px;padding:18px}
+.box input{width:100%;padding:11px;margin:6px 0;border:1px solid #ddd;border-radius:6px}
+.btn{width:100%;padding:12px;background:#e91e63;color:#fff;border:none;border-radius:6px;font-weight:bold;margin-top:8px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px;border-top:1px solid #eee;z-index:100}
+.wa{position:fixed;bottom:70px;right:15px;background:#25d366;color:#fff;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;z-index:90}
 </style>
 </head>
 <body>
 
 <div class="header">
+<div class="top">
 <div class="logo">KIZA SHOP</div>
-<div class="header-right">
-<span id="userName" style="font-size:12px"></span>
-<span id="loginBtn" style="cursor:pointer;font-size:13px">Login</span>
-<div class="cart-icon" id="cartIcon">🛒 <span class="cart-count" id="cartCount">0</span></div>
+<div class="right"><span id="loginBtn">Login / Register</span><div class="cart" id="cartIcon">🛒<span class="cnt" id="cartCnt">0</span></div></div>
 </div>
+<div class="searchWrap"><input id="searchInput" placeholder="Search in Kiza Shop..."><span>🔍</span></div>
 </div>
 
-<div class="banner"><img src="https://via.placeholder.com/600x200?text=Kiza+Shop+Banner" loading="lazy"></div>
-
-<div class="search-bar"><input id="searchInput" placeholder="Search products..."><span id="searchBtn">🔍</span></div>
+<div style="background:#fff"><img src="https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150322012.jpg" style="width:100%;height:160px;object-fit:cover"></div>
 
 <div class="cats" id="cats">
-<div class="cat active" data-cat="all">All</div>
-<div class="cat" data-cat="Clothing">Clothing</div>
-<div class="cat" data-cat="Girlsclothes">Girls clothes</div>
-<div class="cat" data-cat="Watch">Watch</div>
-<div class="cat" data-cat="Electronics">Electronics</div>
-<div class="cat" data-cat="Gadgets">Gadgets</div>
+<div class="cat active" data-c="all">All</div><div class="cat" data-c="Clothing">Clothing</div><div class="cat" data-c="Girlsclothes">Girls clothes</div><div class="cat" data-c="Watch">Watch</div><div class="cat" data-c="Electronics">Electronics</div><div class="cat" data-c="Gadgets">Gadgets</div>
 </div>
 
-<div class="section-title">Just For You</div>
-<div class="product-grid" id="productGrid"></div>
-<p id="loadingText" style="text-align:center;padding:20px">Loading...</p>
+<h3 style="padding:12px 10px 5px">Just For You</h3>
+<div class="grid" id="grid"></div>
+<p id="loadTxt" style="text-align:center;padding:20px;color:#888">Products Loading...</p>
 
-<div class="bottom-nav"><div>🏠 Home</div><div id="bottomCart">🛒 Cart</div><div id="bottomAccount">👤 Account</div></div>
-<a class="whatsapp" href="https://wa.me/8801XXXXXXXXX" target="_blank">W</a>
+<div class="nav"><div>🏠 Home</div><div id="bCart">🛒 Cart</div><div id="bAcc">👤 Account</div></div>
+<a class="wa" href="https://wa.me/8801XXXXXXXXX" target="_blank">W</a>
 
 <!-- Product Modal -->
-<div class="modal" id="productModal"><div class="modal-box">
-<img id="mImg" style="width:100%;height:250px;object-fit:contain;background:#f9f9f9;border-radius:8px">
-<h3 id="mTitle" style="margin:10px 0"></h3>
-<div style="color:#e91e63;font-weight:bold;font-size:18px" id="mPrice"></div>
-<div id="mRating" style="font-size:13px;color:#ff9800;margin:5px 0"></div>
-<button class="btn" id="addToCartBtn">Add to Cart</button>
-<button class="btn" style="background:#333" id="closeProduct">Close</button>
-</div></div>
+<div class="modal" id="pModal"><div class="box"><img id="mImg" style="width:100%;height:220px;object-fit:contain"><h3 id="mTitle"></h3><div id="mPrice" class="p" style="font-size:18px;margin:8px 0"></div><button class="btn" id="addCart">Add to Cart</button><button class="btn" style="background:#333" onclick="pModal.style.display='none'">Close</button></div></div>
 
 <!-- Cart Modal -->
-<div class="modal" id="cartModal"><div class="modal-box">
-<h3>Your Cart</h3><div id="cartItems"></div>
-<h3 id="totalPrice" style="margin-top:10px"></h3>
-<button class="btn" id="checkoutBtn">Checkout</button>
-<button class="btn" style="background:#333" id="closeCart">Close</button>
+<div class="modal" id="cModal"><div class="box"><h3>Cart</h3><div id="cItems"></div><h3 id="total"></h3><button class="btn" id="checkout">Checkout</button><button class="btn" style="background:#333" onclick="cModal.style.display='none'">Close</button></div></div>
+
+<!-- LOGIN / REGISTER MODAL - এটাই তুমি খুঁজছো -->
+<div class="modal" id="lModal"><div class="box">
+<h3 style="text-align:center">Welcome to Kiza Shop</h3>
+<input id="lEmail" placeholder="Email"><input id="lPass" type="password" placeholder="Password">
+<button class="btn" id="doLogin">Login</button>
+<button class="btn" style="background:#fff;color:#333;border:1px solid #ddd" id="doRegister">New Account - Register</button>
+<button class="btn" style="background:#4285f4" id="doGoogle">Login with Google</button>
+<p style="font-size:12px;color:#666;text-align:center;margin-top:10px">Login করলে Order করতে পারবে</p>
+<button class="btn" style="background:#333" onclick="lModal.style.display='none'">Close</button>
 </div></div>
 
 <!-- Checkout Modal -->
-<div class="modal" id="checkoutModal"><div class="modal-box">
-<h3>Delivery Info</h3>
-<input id="cName" placeholder="আপনার নাম" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:6px">
-<input id="cPhone" placeholder="ফোন নাম্বার" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:6px">
-<input id="cAddress" placeholder="ঠিকানা" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:6px">
-<button class="btn" id="placeOrderBtn">Order Confirm - Cash on Delivery</button>
-<button class="btn" style="background:#333" id="closeCheckout">Cancel</button>
+<div class="modal" id="chModal"><div class="box">
+<h3>Delivery Address</h3><input id="cName" placeholder="আপনার নাম"><input id="cPhone" placeholder="ফোন"><input id="cAddr" placeholder="ঠিকানা"><button class="btn" id="placeOrder">Confirm Order (Cash on Delivery)</button><button class="btn" style="background:#333" onclick="chModal.style.display='none'">Cancel</button>
 </div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// TODO: তোমার Project Settings থেকে Config টা এখানে Paste করো
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyCXx-2V4v2y1z8Kz9_example_REPLACE_WITH_YOURS",
   authDomain: "kiza-shop-6ee3c.firebaseapp.com",
   projectId: "kiza-shop-6ee3c",
   storageBucket: "kiza-shop-6ee3c.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
+  messagingSenderId: "YOUR_ID",
   appId: "YOUR_APP_ID"
 };
+//!!! উপরের Config টা Firebase -> Project Settings -> Your Apps থেকে Copy করে Replace করো!!!
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);const auth=getAuth(app);const provider=new GoogleAuthProvider();
+let all=[], cart=JSON.parse(localStorage.getItem('kizaCart')||'[]'), sel=null, cat='all', sTxt='';
+const grid=document.getElementById('grid');const loadTxt=document.getElementById('loadTxt');
+function updCart(){document.getElementById('cartCnt').innerText=cart.length;localStorage.setItem('kizaCart',JSON.stringify(cart));}updCart();
 
-let allProducts = [];
-let cart = JSON.parse(localStorage.getItem('kizaCart')||'[]');
-let selectedProduct = null;
-let activeCat = 'all';
-let searchText = '';
-
-const grid = document.getElementById('productGrid');
-const loadingText = document.getElementById('loadingText');
-
-function updateCartCount(){ document.getElementById('cartCount').innerText = cart.length; localStorage.setItem('kizaCart', JSON.stringify(cart)); }
-updateCartCount();
-
-// FAST LOAD: onSnapshot + Lazy + limit 20
-onSnapshot(query(collection(db,"products"), orderBy("createdAt","desc"), limit(30)), (snap)=>{
-  allProducts = [];
-  snap.forEach(d=> allProducts.push({id:d.id, ...d.data()}));
-  loadingText.style.display='none';
-  render();
+onSnapshot(query(collection(db,"products"), orderBy("createdAt","desc")), snap=>{
+  all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()})); loadTxt.style.display='none'; render();
+  if(all.length===0) loadTxt.innerText='No Products Yet! Admin থেকে Add করুন'; loadTxt.style.display='block';
 });
-
 function render(){
   grid.innerHTML='';
-  let filtered = allProducts.filter(p=>{
-    const matchCat = activeCat==='all' || p.category===activeCat;
-    const matchSearch = p.title.toLowerCase().includes(searchText.toLowerCase());
-    return matchCat && matchSearch;
-  });
-  filtered.forEach(p=>{
-    const card = document.createElement('div'); card.className='card';
-    // FAST SECRET: loading="lazy" + width height + object-fit
-    card.innerHTML = `
-      <img src="${p.img}" loading="lazy" width="300" height="300" alt="${p.title}">
-      <div class="t">${p.title}</div>
-      <div><span class="p">৳ ${p.price}</span> ${p.oldPrice?`<span class="old">৳ ${p.oldPrice}</span>`:''}</div>
-      <div class="r">★★★★★ ${p.rating||'5.0'}</div>
-    `;
-    card.onclick = ()=>{ selectedProduct=p; document.getElementById('mImg').src=p.img; document.getElementById('mTitle').innerText=p.title; document.getElementById('mPrice').innerText='৳ '+p.price; document.getElementById('mRating').innerText='Rating: '+(p.rating||'5.0'); document.getElementById('productModal').style.display='flex'; };
-    grid.appendChild(card);
+  all.filter(p=>(cat==='all'||p.category===cat) && p.title.toLowerCase().includes(sTxt.toLowerCase())).forEach(p=>{
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML=`<img src="${p.img}" loading="lazy"><div class="t">${p.title}</div><div class="p">৳${p.price} ${p.oldPrice?`<span class="old">৳${p.oldPrice}</span>`:''}</div>`;
+    d.onclick=()=>{sel=p;mImg.src=p.img;mTitle.innerText=p.title;mPrice.innerText='৳'+p.price+' '+(p.oldPrice?'( ৳'+p.oldPrice+')':'');pModal.style.display='flex';}; grid.appendChild(d);
   });
 }
+cats.querySelectorAll('.cat').forEach(c=>c.onclick=()=>{cats.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));c.classList.add('active');cat=c.dataset.c;render();});
+searchInput.oninput=e=>{sTxt=e.target.value;render();};
+addCart.onclick=()=>{cart.push(sel);updCart();pModal.style.display='none';alert('Added to Cart');};
+function openCart(){cModal.style.display='flex';let h='',t=0;cart.forEach((p,i)=>{t+=Number(p.price);h+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee"><span>${p.title}</span><span onclick="window.del(${i})" style="color:red">X</span></div>`;});document.getElementById('cItems').innerHTML=h||'Empty';document.getElementById('total').innerText='Total: ৳'+t;}
+window.del=i=>{cart.splice(i,1);updCart();openCart();};
+cartIcon.onclick=openCart;bCart.onclick=openCart;
+checkout.onclick=()=>{if(!auth.currentUser){alert('Please Login First');lModal.style.display='flex';return;}cModal.style.display='none';chModal.style.display='flex';};
+placeOrder.onclick=async()=>{if(!cName.value||!cPhone.value||!cAddr.value)return alert('সব তথ্য দিন');placeOrder.disabled=true;try{await addDoc(collection(db,"orders"),{name:cName.value,phone:cPhone.value,addr:cAddr.value,items:cart,total:cart.reduce((a,b)=>a+Number(b.price),0),uid:auth.currentUser.uid,email:auth.currentUser.email,date:new Date()});alert('Order Success!');cart=[];updCart();chModal.style.display='none';}catch(e){alert(e.message);}placeOrder.disabled=false;};
 
-document.querySelectorAll('.cat').forEach(c=>{ c.onclick=()=>{ document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active')); c.classList.add('active'); activeCat=c.dataset.cat; render(); }});
-document.getElementById('searchInput').oninput=(e)=>{ searchText=e.target.value; render(); };
-
-document.getElementById('closeProduct').onclick=()=> productModal.style.display='none';
-document.getElementById('addToCartBtn').onclick=()=>{ if(selectedProduct){ cart.push(selectedProduct); updateCartCount(); productModal.style.display='none'; alert('Cart এ Add হয়েছে'); } };
-
-function openCart(){ cartModal.style.display='flex'; renderCart(); }
-document.getElementById('cartIcon').onclick=openCart; document.getElementById('bottomCart').onclick=openCart;
-document.getElementById('closeCart').onclick=()=> cartModal.style.display='none';
-
-function renderCart(){ const div=document.getElementById('cartItems'); div.innerHTML=''; let total=0; cart.forEach((p,i)=>{ total+=Number(p.price); div.innerHTML+=`<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:8px 0"><span>${p.title} - ৳${p.price}</span><span style="color:red;cursor:pointer" onclick="window.removeItem(${i})">X</span></div>`; }); document.getElementById('totalPrice').innerText='Total: ৳ '+total; }
-window.removeItem=(i)=>{ cart.splice(i,1); updateCartCount(); renderCart(); };
-
-document.getElementById('checkoutBtn').onclick=()=>{ if(cart.length===0)return alert('Cart Empty'); if(!auth.currentUser)return alert('আগে Login করুন'); cartModal.style.display='none'; checkoutModal.style.display='flex'; };
-document.getElementById('closeCheckout').onclick=()=> checkoutModal.style.display='none';
-
-document.getElementById('placeOrderBtn').onclick=async()=>{
-  const name=cName.value, phone=cPhone.value, address=cAddress.value;
-  if(!name||!phone||!address)return alert('সব তথ্য দিন');
-  try{
-    placeOrderBtn.disabled=true; placeOrderBtn.innerText='Placing...';
-    await addDoc(collection(db,"orders"),{ customerName:name, phone, address, items:cart, total:cart.reduce((a,b)=>a+Number(b.price),0), userId:auth.currentUser.uid, userEmail:auth.currentUser.email, createdAt:new Date(), status:'pending' });
-    alert('Order Done! Cash on Delivery');
-    cart=[]; updateCartCount(); checkoutModal.style.display='none'; localStorage.removeItem('kizaCart');
-  }catch(e){ alert(e.message); } finally{ placeOrderBtn.disabled=false; placeOrderBtn.innerText='Order Confirm - Cash on Delivery'; }
-};
-
-// Auth
-onAuthStateChanged(auth, user=>{ if(user){ userName.innerText=user.displayName; loginBtn.innerText='Logout'; } else { userName.innerText=''; loginBtn.innerText='Login'; } });
-document.getElementById('loginBtn').onclick=()=>{ if(auth.currentUser) signOut(auth); else signInWithPopup(auth, provider); };
-document.getElementById('bottomAccount').onclick=()=>{ if(auth.currentUser) signOut(auth); else signInWithPopup(auth, provider); };
-
+// AUTH SYSTEM
+loginBtn.onclick=bAcc.onclick=()=>{if(auth.currentUser)signOut(auth);else lModal.style.display='flex';};
+doLogin.onclick=()=>signInWithEmailAndPassword(auth,lEmail.value,lPass.value).then(()=>lModal.style.display='none').catch(e=>alert(e.message));
+doRegister.onclick=()=>createUserWithEmailAndPassword(auth,lEmail.value,lPass.value).then(()=>{alert('Register Success!');lModal.style.display='none';}).catch(e=>alert(e.message));
+doGoogle.onclick=()=>signInWithPopup(auth,provider).then(()=>lModal.style.display='none').catch(e=>alert(e.message));
+onAuthStateChanged(auth,u=>{loginBtn.innerText=u?u.email.split('@')[0]+' (Logout)':'Login / Register';});
 </script>
 </body>
 </html>
