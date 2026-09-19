@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Kiza Admin</title>
+<style>body{font-family:Arial;background:#f4f4f4;padding:10px}.box{background:#fff;padding:20px;border-radius:10px;max-width:480px;margin:auto} input,select,button{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box} button{background:#e91e63;color:#fff;font-weight:bold;border:none} #preview{width:100px;height:100px;object-fit:cover;border-radius:8px;display:none;margin:10px 0}</style>
+</head><body>
+<div class="box" id="loginBox"><h3>Admin Login</h3><input id="email" value="admin@kiza.com"><input id="pass" type="password" value="Admin123456"><button id="loginBtn">Login</button></div>
+<div class="box" id="adminBox" style="display:none"><h3>নতুন পণ্য যোগ করুন</h3>
+<input id="title" placeholder="পণ্যের নাম"><input id="price" type="number" placeholder="দাম ৳"><input id="oldPrice" type="number" placeholder="আগের দাম (Discount এর জন্য)"><input id="rating" placeholder="রেটিং 4.9">
+<select id="cat"><option value="Clothing">Clothing</option><option value="Girlsclothes">Girls clothes</option><option value="Watch">Watch</option><option value="Electronics">Electronics</option><option value="Gadgets">Gadgets</option></select>
+<input type="file" id="file" accept="image/*"><img id="preview"><p id="status"></p>
+<button id="addBtn">পাবলিশ করুন (Auto 30KB Fast)</button><div id="list"></div><button id="logoutBtn">Logout</button></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {getFirestore,collection,addDoc,onSnapshot,deleteDoc,doc} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyBq2v6Zp9K8s1x2V7Xz9y0AbC1DeFgHiJkL",authDomain:"kiza-shop-6ee3c.firebaseapp.com",projectId:"kiza-shop-6ee3c",storageBucket:"kiza-shop-6ee3c.firebasestorage.app",messagingSenderId:"123456789",appId:"1:123456789:web:abcdef"};
+// তোমার আসল Config টা এখানে বসবে, আমি তোমার Project ID দিয়ে বানালাম
+const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFirestore(app);
+let compressedBase64="";
+onAuthStateChanged(auth,u=>{if(u){loginBox.style.display='none';adminBox.style.display='block';load();}else{loginBox.style.display='block';adminBox.style.display='none';}});
+loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,pass.value).catch(e=>alert(e.message));
+logoutBtn.onclick=()=>signOut(auth);
+file.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.readAsDataURL(f);r.onload=ev=>{const img=new Image();img.src=ev.target.result;img.onload=()=>{const c=document.createElement('canvas');const MAX=500;let w=img.width,h=img.height;if(w>MAX){h=h*MAX/w;w=MAX;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);compressedBase64=c.toDataURL('image/webp',0.5);preview.src=compressedBase64;preview.style.display='block';status.innerText=`Compress Done: ~${Math.round(compressedBase64.length/1024)}KB - এখন Fast Load হবে`;};};}
+addBtn.onclick=async()=>{if(!title.value||!price.value||!compressedBase64)return alert('সব দিন');addBtn.disabled=true;status.innerText='Saving...';try{await addDoc(collection(db,"products"),{title:title.value,price:price.value,oldPrice:oldPrice.value,rating:rating.value||'5.0',category:cat.value,img:compressedBase64,createdAt:new Date()});alert('Product Added! এখন 1 সেকেন্ডে Load হবে');title.value='';price.value='';oldPrice.value='';}catch(e){alert(e.message);}addBtn.disabled=false;};
+function load(){onSnapshot(collection(db,"products"),s=>{list.innerHTML='';s.forEach(d=>{list.innerHTML+=`<div style="display:flex;justify-content:space-between;border:1px solid #eee;padding:5px;margin:5px 0"><span>${d.data().title}</span><button onclick="import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js').then(m=>m.deleteDoc(m.doc(m.getFirestore(), 'products','${d.id}')))">X</button></div>`;});});}
+</script></body></html>
