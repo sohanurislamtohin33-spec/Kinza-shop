@@ -21,7 +21,7 @@
     </div>
 </div>
 
-<!-- ব্যানার স্লাইডার কনটেইনার -->
+<!-- ব্যানার স্লাইডার -->
 <div style="background:#fff; overflow:hidden; position:relative; width:100%; height:160px;">
     <img id="sliderBanner" src="https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150322012.jpg" style="width:100%; height:160px; object-fit:cover; transition: opacity 0.4s ease-in-out;" alt="Banner">
 </div>
@@ -36,7 +36,7 @@
 
 <h3 style="padding:12px 10px 5px; font-size:16px; color:#333;">Just For You</h3>
 <div class="grid" id="grid"></div>
-<p id="loadTxt" style="text-align:center;padding:20px;color:#888;font-size:14px;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>
+<p id="loadTxt" style="text-align:center;padding:20px;color:#888;font-size:14px;display:none;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>
 
 <div class="nav">
     <div onclick="window.scrollTo({top:0, behavior:'smooth'})">🏠 Home</div>
@@ -45,14 +45,17 @@
 
 <a class="wa" href="https://wa.me/8801XXXXXXXXX" target="_blank">💬</a>
 
-<!-- প্রোডাক্ট ডিটেইলস মোডাল -->
+<!-- প্রোডাক্ট ডিটেইলস মোডাল (পপআপ) -->
 <div class="modal" id="pModal">
     <div class="box">
-        <img id="mImg" style="width:100%;height:220px;object-fit:contain">
-        <h3 id="mTitle" style="margin-top:10px;font-size:16px;"></h3>
-        <div id="mPrice" class="p" style="font-size:18px;margin:8px 0"></div>
-        <button class="btn" id="addCart">Add to Cart</button>
-        <button class="btn" style="background:#555" onclick="document.getElementById('pModal').style.display='none'">Close</button>
+        <img id="mImg" class="big-modal-img">
+        <h3 id="mTitle" style="margin-top:12px; font-size:16px; color:#333;"></h3>
+        <div id="mPrice" class="p" style="font-size:18px; margin:8px 0"></div>
+        
+        <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn" style="background:#ff5722; flex:1;" id="buyNowBtn">⚡ Buy Now</button>
+            <button class="btn" style="background:#e91e63; flex:1;" id="addCartBtn">🛒 Add to Cart</button>
+        </div>
     </div>
 </div>
 
@@ -63,7 +66,6 @@
         <div id="cItems" style="margin:12px 0;max-height:200px;overflow-y:auto"></div>
         <h3 id="total" style="text-align:right;margin-bottom:10px;"></h3>
         <button class="btn" id="checkout">Checkout</button>
-        <button class="btn" style="background:#555" onclick="document.getElementById('cModal').style.display='none'">Close</button>
     </div>
 </div>
 
@@ -75,7 +77,6 @@
         <input id="cPhone" placeholder="মোবাইল নম্বর">
         <input id="cAddr" placeholder="পূর্ণাঙ্গ ঠিকানা">
         <button class="btn" id="placeOrder">অর্ডার কনফার্ম করুন</button>
-        <button class="btn" style="background:#555" onclick="document.getElementById('chModal').style.display='none'">বাতিল</button>
     </div>
 </div>
 
@@ -84,7 +85,7 @@
     let cart = JSON.parse(localStorage.getItem('kinzaCart') || '[]');
     let sel = null, cat = 'all', sTxt = '';
 
-    // ১ সেকেন্ড অটো স্লাইডার লজিক
+    // ১ সেকেন্ড অটো স্লাইডার
     let banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
     let currentBannerIdx = 0;
 
@@ -120,17 +121,42 @@
             const d = document.createElement('div');
             d.className = 'card';
             d.innerHTML = `<img src="${p.img}" loading="lazy"><div class="t">${p.title}</div><div class="p">৳${p.price}</div>`;
-            d.onclick = () => {
-                sel = p;
-                document.getElementById('mImg').src = p.img;
-                document.getElementById('mTitle').innerText = p.title;
-                document.getElementById('mPrice').innerText = '৳' + p.price;
-                document.getElementById('pModal').style.display = 'flex';
-            };
+            d.onclick = () => openModal(p);
             grid.appendChild(d);
         });
     }
     render();
+
+    // ফোনে ব্যাক বাটন প্রেস করলে মোডাল বন্ধ হওয়ার লজিক
+    function openModal(p) {
+        sel = p;
+        document.getElementById('mImg').src = p.img;
+        document.getElementById('mTitle').innerText = p.title;
+        document.getElementById('mPrice').innerText = '৳' + p.price;
+        document.getElementById('pModal').style.display = 'flex';
+        
+        // ব্রাউজার হিস্টোরিতে স্টেট যোগ করা
+        history.pushState({ modalOpen: true }, "");
+    }
+
+    function closeModal() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    }
+
+    // ব্যাক বাটনে প্রেস করলে পপআপ বন্ধ হবে
+    window.onpopstate = function() {
+        closeModal();
+    };
+
+    // মোডালের বাইরের ফাঁকা জায়গায় ক্লিক করলেও পপআপ বন্ধ হবে
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal();
+            if (history.state && history.state.modalOpen) {
+                history.back();
+            }
+        }
+    };
 
     document.getElementById('cats').querySelectorAll('.cat').forEach(c => c.onclick = () => {
         document.querySelectorAll('.cat').forEach(x => x.classList.remove('active'));
@@ -141,15 +167,24 @@
 
     document.getElementById('searchInput').oninput = e => { sTxt = e.target.value; render(); };
 
-    document.getElementById('addCart').onclick = () => {
+    document.getElementById('addCartBtn').onclick = () => {
         cart.push(sel);
         updCart();
-        document.getElementById('pModal').style.display = 'none';
+        closeModal();
         alert('কার্টে যোগ করা হয়েছে!');
+    };
+
+    document.getElementById('buyNowBtn').onclick = () => {
+        cart = [sel];
+        updCart();
+        closeModal();
+        document.getElementById('chModal').style.display = 'flex';
+        history.pushState({ modalOpen: true }, "");
     };
 
     function openCart() {
         document.getElementById('cModal').style.display = 'flex';
+        history.pushState({ modalOpen: true }, "");
         let h = '', t = 0;
         cart.forEach((p, i) => {
             t += Number(p.price);
@@ -169,8 +204,9 @@
 
     document.getElementById('checkout').onclick = () => {
         if(!cart.length) return alert('আপনার কার্ট খালি!');
-        document.getElementById('cModal').style.display = 'none';
+        closeModal();
         document.getElementById('chModal').style.display = 'flex';
+        history.pushState({ modalOpen: true }, "");
     };
 
     document.getElementById('placeOrder').onclick = () => {
@@ -190,7 +226,7 @@
         alert('আপনার অর্ডার সফলভাবে গৃহীত হয়েছে!');
         cart = [];
         updCart();
-        document.getElementById('chModal').style.display = 'none';
+        closeModal();
     };
 </script>
 </body>
