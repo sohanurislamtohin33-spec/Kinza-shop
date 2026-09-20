@@ -21,8 +21,9 @@
     </div>
 </div>
 
-<div style="background:#fff">
-    <img src="https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150322012.jpg" style="width:100%;height:160px;object-fit:cover" alt="Banner">
+<!-- ব্যানার স্লাইডার কনটেইনার -->
+<div style="background:#fff; overflow:hidden; position:relative; width:100%; height:160px;">
+    <img id="sliderBanner" src="https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150322012.jpg" style="width:100%; height:160px; object-fit:cover; transition: opacity 0.4s ease-in-out;" alt="Banner">
 </div>
 
 <div class="cats" id="cats">
@@ -66,7 +67,7 @@
     </div>
 </div>
 
-<!-- চেকআউট/অর্ডার মোডাল -->
+<!-- চেকআউট মোডাল -->
 <div class="modal" id="chModal">
     <div class="box">
         <h3>ডেলিভারি তথ্য দিন</h3>
@@ -82,6 +83,25 @@
     let all = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
     let cart = JSON.parse(localStorage.getItem('kinzaCart') || '[]');
     let sel = null, cat = 'all', sTxt = '';
+
+    // ১ সেকেন্ড অটো স্লাইডার লজিক
+    let banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
+    let currentBannerIdx = 0;
+
+    if (banners.length > 0) {
+        const bannerImg = document.getElementById('sliderBanner');
+        bannerImg.src = banners[0].img;
+        
+        setInterval(() => {
+            currentBannerIdx = (currentBannerIdx + 1) % banners.length;
+            bannerImg.style.opacity = 0.2;
+            
+            setTimeout(() => {
+                bannerImg.src = banners[currentBannerIdx].img;
+                bannerImg.style.opacity = 1;
+            }, 200);
+        }, 1000); 
+    }
 
     function updCart() {
         document.getElementById('cartCnt').innerText = cart.length;
