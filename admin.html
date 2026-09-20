@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <!-- অ্যাডমিন লগইন বক্স -->
+    <!-- অ্যাডমিন লগইন ফর্ম -->
     <div id="loginBox" class="box" style="margin: 50px auto; max-width: 350px;">
         <h2 style="text-align: center; margin-bottom: 15px;">অ্যাডমিন লগইন</h2>
         <input type="text" id="adminUser" placeholder="ইউজারনেম">
@@ -17,7 +17,7 @@
         <p id="errMsg" style="color:red; font-size:12px; margin-top:5px; text-align:center;"></p>
     </div>
 
-    <!-- মূল অ্যাডমিন ড্যাশবোর্ড (লগইনের পর দেখাবে) -->
+    <!-- অ্যাডমিন ড্যাশবোর্ড -->
     <div id="adminPanel" style="display: none; padding: 15px; max-width: 600px; margin: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2>KINZA SHOP অ্যাডমিন</h2>
@@ -26,12 +26,26 @@
 
         <hr style="margin: 15px 0;">
 
+        <!-- ব্যানার ম্যানেজমেন্ট -->
+        <h3>🖼️ স্লাইডার ব্যানার যুক্ত করুন (১ সেকেন্ড অটো-স্লাইড)</h3>
+        <div class="box" style="margin-top: 10px;">
+            <label style="font-size: 12px; font-weight: bold;">ব্যানার ছবি বাছুন:</label>
+            <input type="file" id="bImg" accept="image/*">
+            <button class="btn" onclick="addBanner()">ব্যানার সেভ করুন</button>
+        </div>
+
+        <h4 style="margin-top: 15px;">বর্তমান ব্যানারসমূহ:</h4>
+        <div id="bannerList" style="margin-top: 10px;"></div>
+
+        <hr style="margin: 20px 0;">
+
+        <!-- প্রোডাক্ট যোগ সেকশন -->
         <h3>📦 নতুন প্রোডাক্ট যোগ করুন</h3>
         <div class="box" style="margin-top: 10px;">
             <input type="text" id="pTitle" placeholder="প্রোডাক্টের নাম">
             <input type="number" id="pPrice" placeholder="মূল্য (৳)">
             
-            <label style="font-size: 12px; font-weight: bold;">ছবি বেছে নিন (অটো ছোট ও WebP হবে):</label>
+            <label style="font-size: 12px; font-weight: bold;">প্রোডাক্টের ছবি:</label>
             <input type="file" id="pImg" accept="image/*">
             
             <select id="pCat" style="width:100%; padding:10px; margin:6px 0; border:1px solid #ddd; border-radius:6px;">
@@ -56,7 +70,6 @@
     </div>
 
     <script>
-        // নির্দিষ্ট ইউজারনেম ও পাসওয়ার্ড
         const USERNAME = "admin";
         const PASSWORD = "kinza123";
 
@@ -86,7 +99,7 @@
             showPanel();
         }
 
-        // ছবি অটো WebP ও ছোট সাইজ করার ফাংশন
+        // ছবি ছোট ও WebP ফরম্যাটে রূপান্তর
         function processImage(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -96,18 +109,34 @@
                     img.src = e.target.result;
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 400;
+                        const MAX_WIDTH = 600;
                         let w = img.width, h = img.height;
                         if (w > MAX_WIDTH) { h = Math.round((h * MAX_WIDTH) / w); w = MAX_WIDTH; }
                         canvas.width = w; canvas.height = h;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/webp', 0.65));
+                        resolve(canvas.toDataURL('image/webp', 0.7));
                     };
                 };
             });
         }
 
+        // ব্যানার যোগ করা
+        async function addBanner() {
+            const file = document.getElementById('bImg').files[0];
+            if(!file) return alert('ছবি সিলেক্ট করুন!');
+
+            const webpImg = await processImage(file);
+            const banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
+            
+            banners.push({ id: Date.now(), img: webpImg });
+            localStorage.setItem('kinzaBanners', JSON.stringify(banners));
+
+            alert('ব্যানার যুক্ত হয়েছে!');
+            location.reload();
+        }
+
+        // প্রোডাক্ট যোগ করা
         async function addProduct() {
             const title = document.getElementById('pTitle').value;
             const price = document.getElementById('pPrice').value;
@@ -127,6 +156,17 @@
         }
 
         function loadAdminData() {
+            // ব্যানার লোড
+            const banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
+            let bHTML = '';
+            banners.forEach((b, i) => {
+                bHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px; margin-bottom:5px; border-radius:6px;">
+                    <img src="${b.img}" style="height:40px; width:80px; object-fit:cover; border-radius:4px;">
+                    <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteBanner(${i})">ডিলিট</button>
+                </div>`;
+            });
+            document.getElementById('bannerList').innerHTML = bHTML || 'কোনো ব্যানার নেই';
+
             // প্রোডাক্ট লোড
             const products = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
             let pHTML = '';
@@ -150,6 +190,13 @@
                 </div>`;
             });
             document.getElementById('orderList').innerHTML = oHTML || 'কোনো নতুন অর্ডার নেই';
+        }
+
+        function deleteBanner(i) {
+            let banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
+            banners.splice(i, 1);
+            localStorage.setItem('kinzaBanners', JSON.stringify(banners));
+            loadAdminData();
         }
 
         function deleteProduct(i) {
