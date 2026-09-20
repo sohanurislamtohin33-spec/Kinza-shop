@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- অ্যাডমিন লগইন ফর্ম -->
     <div id="loginBox" class="box" style="margin: 50px auto; max-width: 350px;">
         <h2 style="text-align: center; margin-bottom: 15px;">অ্যাডমিন লগইন</h2>
         <input type="text" id="adminUser" placeholder="ইউজারনেম">
@@ -17,7 +16,6 @@
         <p id="errMsg" style="color:red; font-size:12px; margin-top:5px; text-align:center;"></p>
     </div>
 
-    <!-- অ্যাডমিন ড্যাশবোর্ড -->
     <div id="adminPanel" style="display: none; padding: 15px; max-width: 600px; margin: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2>KINZA SHOP অ্যাডমিন</h2>
@@ -26,26 +24,24 @@
 
         <hr style="margin: 15px 0;">
 
-        <!-- ব্যানার ম্যানেজমেন্ট -->
-        <h3>🖼️ স্লাইডার ব্যানার যুক্ত করুন (১ সেকেন্ড অটো-স্লাইড)</h3>
+        <h3>🖼️ স্লাইডার ব্যানার ম্যানেজ করুন</h3>
         <div class="box" style="margin-top: 10px;">
             <label style="font-size: 12px; font-weight: bold;">ব্যানার ছবি বাছুন:</label>
             <input type="file" id="bImg" accept="image/*">
             <button class="btn" onclick="addBanner()">ব্যানার সেভ করুন</button>
         </div>
-
-        <h4 style="margin-top: 15px;">বর্তমান ব্যানারসমূহ:</h4>
         <div id="bannerList" style="margin-top: 10px;"></div>
 
         <hr style="margin: 20px 0;">
 
-        <!-- প্রোডাক্ট যোগ সেকশন -->
-        <h3>📦 নতুন প্রোডাক্ট যোগ করুন</h3>
+        <h3>📦 নতুন পণ্য যোগ করুন</h3>
         <div class="box" style="margin-top: 10px;">
-            <input type="text" id="pTitle" placeholder="প্রোডাক্টের নাম">
-            <input type="number" id="pPrice" placeholder="মূল্য (৳)">
+            <input type="text" id="pTitle" placeholder="পণ্যের নাম">
+            <input type="number" id="pPrice" placeholder="বর্তমান দাম (৳)">
+            <input type="number" id="pOldPrice" placeholder="আগের দাম (৳)">
+            <input type="number" step="0.1" id="pRating" placeholder="রেটিং (যেমন: 4.9)">
             
-            <label style="font-size: 12px; font-weight: bold;">প্রোডাক্টের ছবি:</label>
+            <label style="font-size: 12px; font-weight: bold;">গ্যালারি থেকে ছবি বেছে নিন:</label>
             <input type="file" id="pImg" accept="image/*">
             
             <select id="pCat" style="width:100%; padding:10px; margin:6px 0; border:1px solid #ddd; border-radius:6px;">
@@ -55,16 +51,14 @@
                 <option value="Electronics">Electronics</option>
             </select>
 
-            <button class="btn" onclick="addProduct()">পাবলিশ করুন</button>
+            <button class="btn" onclick="addProduct()">পণ্য পাবলিশ করুন</button>
         </div>
 
         <hr style="margin: 20px 0;">
-
-        <h3>📋 প্রোডাক্ট তালিকা</h3>
+        <h3>বর্তমান পণ্যসমূহ</h3>
         <div id="productList" style="margin-top: 10px;"></div>
 
         <hr style="margin: 20px 0;">
-
         <h3>🛒 অর্ডারের তালিকা</h3>
         <div id="orderList" style="margin-top: 10px;"></div>
     </div>
@@ -74,9 +68,7 @@
         const PASSWORD = "kinza123";
 
         function login() {
-            const u = document.getElementById('adminUser').value;
-            const p = document.getElementById('adminPass').value;
-            if(u === USERNAME && p === PASSWORD) {
+            if(document.getElementById('adminUser').value === USERNAME && document.getElementById('adminPass').value === PASSWORD) {
                 localStorage.setItem('kinzaAdminLogged', 'true');
                 showPanel();
             } else {
@@ -95,11 +87,8 @@
             loadAdminData();
         }
 
-        if(localStorage.getItem('kinzaAdminLogged') === 'true') {
-            showPanel();
-        }
+        if(localStorage.getItem('kinzaAdminLogged') === 'true') showPanel();
 
-        // ছবি ছোট ও WebP ফরম্যাটে রূপান্তর
         function processImage(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -121,96 +110,81 @@
             });
         }
 
-        // ব্যানার যোগ করা
         async function addBanner() {
             const file = document.getElementById('bImg').files[0];
             if(!file) return alert('ছবি সিলেক্ট করুন!');
-
             const webpImg = await processImage(file);
             const banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
-            
             banners.push({ id: Date.now(), img: webpImg });
             localStorage.setItem('kinzaBanners', JSON.stringify(banners));
-
             alert('ব্যানার যুক্ত হয়েছে!');
-            location.reload();
+            loadAdminData();
         }
 
-        // প্রোডাক্ট যোগ করা
         async function addProduct() {
             const title = document.getElementById('pTitle').value;
             const price = document.getElementById('pPrice').value;
+            const oldPrice = document.getElementById('pOldPrice').value;
+            const rating = document.getElementById('pRating').value || "4.9";
             const cat = document.getElementById('pCat').value;
             const file = document.getElementById('pImg').files[0];
 
-            if(!title || !price || !file) return alert('সব তথ্য পূরণ করুন!');
+            if(!title || !price || !file) return alert('পণ্যের নাম, দাম ও ছবি দিন!');
 
             const webpImg = await processImage(file);
             const products = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
             
-            products.push({ id: Date.now(), title, price, category: cat, img: webpImg });
+            products.push({ id: Date.now(), title, price, oldPrice, rating, category: cat, img: webpImg });
             localStorage.setItem('kinzaProducts', JSON.stringify(products));
 
-            alert('প্রোডাক্ট যুক্ত হয়েছে!');
-            location.reload();
+            alert('পণ্য যোগ হয়েছে!');
+            loadAdminData();
         }
 
         function loadAdminData() {
-            // ব্যানার লোড
             const banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
             let bHTML = '';
             banners.forEach((b, i) => {
                 bHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px; margin-bottom:5px; border-radius:6px;">
-                    <img src="${b.img}" style="height:40px; width:80px; object-fit:cover; border-radius:4px;">
-                    <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteBanner(${i})">ডিলিট</button>
+                    <img src="${b.img}" style="height:40px; width:80px; object-fit:cover;">
+                    <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px;" onclick="deleteBanner(${i})">ডিলিট</button>
                 </div>`;
             });
-            document.getElementById('bannerList').innerHTML = bHTML || 'কোনো ব্যানার নেই';
+            document.getElementById('bannerList').innerHTML = bHTML;
 
-            // প্রোডাক্ট লোড
             const products = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
             let pHTML = '';
             products.forEach((p, i) => {
-                pHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px; margin-bottom:5px; border-radius:6px;">
-                    <span><b>${p.title}</b> - ৳${p.price}</span>
-                    <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteProduct(${i})">ডিলিট</button>
+                pHTML += `<div style="background:#fff; padding:10px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${p.title}</b><br><span style="color:#e91e63">৳${p.price}</span> <del style="color:#888; font-size:12px">৳${p.oldPrice || ''}</del></div>
+                    <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px;" onclick="deleteProduct(${i})">ডিলিট</button>
                 </div>`;
             });
-            document.getElementById('productList').innerHTML = pHTML || 'কোনো প্রোডাক্ট নেই';
+            document.getElementById('productList').innerHTML = pHTML || 'কোনো পণ্য নেই';
 
-            // অর্ডার লোড
             const orders = JSON.parse(localStorage.getItem('kinzaOrders') || '[]');
             let oHTML = '';
             orders.forEach((o, i) => {
                 oHTML += `<div style="background:#fff; padding:10px; margin-bottom:8px; border-radius:6px; border-left:4px solid #e91e63;">
                     <b>নাম:</b> ${o.name} | <b>ফোন:</b> ${o.phone}<br>
-                    <b>ঠিকানা:</b> ${o.addr}<br>
-                    <b>মোট বিল:</b> ৳${o.total}<br>
-                    <button style="background:red; color:#fff; border:none; padding:4px 8px; border-radius:4px; margin-top:5px; cursor:pointer;" onclick="deleteOrder(${i})">অর্ডার মুছুন</button>
+                    <b>ঠিকানা:</b> ${o.addr}<br><b>মোট বিল:</b> ৳${o.total}<br>
+                    <button style="background:red; color:#fff; border:none; padding:4px 8px; border-radius:4px; margin-top:5px;" onclick="deleteOrder(${i})">মুছুন</button>
                 </div>`;
             });
-            document.getElementById('orderList').innerHTML = oHTML || 'কোনো নতুন অর্ডার নেই';
+            document.getElementById('orderList').innerHTML = oHTML || 'কোনো অর্ডার নেই';
         }
 
         function deleteBanner(i) {
-            let banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
-            banners.splice(i, 1);
-            localStorage.setItem('kinzaBanners', JSON.stringify(banners));
-            loadAdminData();
+            let b = JSON.parse(localStorage.getItem('kinzaBanners') || '[]'); b.splice(i, 1);
+            localStorage.setItem('kinzaBanners', JSON.stringify(b)); loadAdminData();
         }
-
         function deleteProduct(i) {
-            let products = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
-            products.splice(i, 1);
-            localStorage.setItem('kinzaProducts', JSON.stringify(products));
-            loadAdminData();
+            let p = JSON.parse(localStorage.getItem('kinzaProducts') || '[]'); p.splice(i, 1);
+            localStorage.setItem('kinzaProducts', JSON.stringify(p)); loadAdminData();
         }
-
         function deleteOrder(i) {
-            let orders = JSON.parse(localStorage.getItem('kinzaOrders') || '[]');
-            orders.splice(i, 1);
-            localStorage.setItem('kinzaOrders', JSON.stringify(orders));
-            loadAdminData();
+            let o = JSON.parse(localStorage.getItem('kinzaOrders') || '[]'); o.splice(i, 1);
+            localStorage.setItem('kinzaOrders', JSON.stringify(o)); loadAdminData();
         }
     </script>
 </body>
