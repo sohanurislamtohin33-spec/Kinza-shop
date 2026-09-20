@@ -1,94 +1,177 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>KINZA SHOP</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{background:#f2f2f2;padding-bottom:60px}
-.header{background:#e91e63;padding:10px 12px;color:#fff;position:sticky;top:0;z-index:100}
-.top{display:flex;justify-content:space-between;align-items:center}
-.logo{font-weight:900;font-size:22px}.right{display:flex;gap:12px;align-items:center;font-size:13px}
-.cart{position:relative;cursor:pointer}.cnt{position:absolute;top:-8px;right:-8px;background:#fff;color:#e91e63;border-radius:50%;font-size:10px;padding:2px 5px;font-weight:bold}
-.searchWrap{margin-top:10px;background:#fff;border-radius:8px;display:flex;align-items:center;padding:8px 12px}
-.searchWrap input{flex:1;border:none;outline:none;font-size:14px}
-.cats{background:#fff;padding:10px 8px;display:flex;gap:8px;overflow-x:auto}
-.cat{border:1px solid #eee;padding:6px 14px;border-radius:20px;white-space:nowrap;font-size:13px;cursor:pointer}
-.cat.active{background:#e91e63;color:#fff;border-color:#e91e63}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
-.card{background:#fff;border-radius:8px;padding:6px}.card img{width:100%;height:160px;object-fit:contain}
-.t{font-size:12px;height:30px;overflow:hidden;margin:4px 0}.p{color:#e91e63;font-weight:bold;font-size:14px}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center;padding:15px}
-.box{background:#fff;width:100%;max-width:380px;border-radius:12px;padding:18px;max-height:90vh;overflow:auto}
-.box input{width:100%;padding:11px;margin:6px 0;border:1px solid #ddd;border-radius:6px}
-.btn{width:100%;padding:12px;background:#e91e63;color:#fff;border:none;border-radius:6px;font-weight:bold;margin-top:8px;cursor:pointer}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px;border-top:1px solid #eee;z-index:100}
-.wa{position:fixed;bottom:70px;right:15px;background:#25d366;color:#fff;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;z-index:90}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KINZA SHOP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="header">
-<div class="top"><div class="logo">KINZA SHOP</div><div class="right"><span id="loginBtn">Login / Register</span><div class="cart" id="cartIcon">🛒<span class="cnt" id="cartCnt">0</span></div></div></div>
-<div class="searchWrap"><input id="searchInput" placeholder="Search in Kiza Shop..."><span>🔍</span></div>
+    <div class="top">
+        <div class="logo">KINZA SHOP</div>
+        <div class="right">
+            <div class="cart" id="cartIcon">🛒<span class="cnt" id="cartCnt">0</span></div>
+        </div>
+    </div>
+    <div class="searchWrap">
+        <input id="searchInput" placeholder="Search in Kinza Shop...">
+        <span>🔍</span>
+    </div>
 </div>
-<div style="background:#fff"><img src="https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150322012.jpg" style="width:100%;height:160px;object-fit:cover"></div>
-<div class="cats" id="cats"><div class="cat active" data-c="all">All</div><div class="cat" data-c="Clothing">Clothing</div><div class="cat" data-c="Girlsclothes">Girls</div><div class="cat" data-c="Watch">Watch</div><div class="cat" data-c="Electronics">Electronics</div></div>
-<h3 style="padding:12px 10px 5px">Just For You</h3>
+
+<div style="background:#fff">
+    <img src="https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150322012.jpg" style="width:100%;height:160px;object-fit:cover" alt="Banner">
+</div>
+
+<div class="cats" id="cats">
+    <div class="cat active" data-c="all">All</div>
+    <div class="cat" data-c="Clothing">Clothing</div>
+    <div class="cat" data-c="Girlsclothes">Girls</div>
+    <div class="cat" data-c="Watch">Watch</div>
+    <div class="cat" data-c="Electronics">Electronics</div>
+</div>
+
+<h3 style="padding:12px 10px 5px; font-size:16px; color:#333;">Just For You</h3>
 <div class="grid" id="grid"></div>
-<p id="loadTxt" style="text-align:center;padding:20px;color:#888">Products Loading...</p>
-<div class="nav"><div>🏠 Home</div><div id="bCart">🛒 Cart</div><div id="bAcc">👤 Account</div></div>
-<a class="wa" href="https://wa.me/8801XXXXXXXXX" target="_blank">W</a>
+<p id="loadTxt" style="text-align:center;padding:20px;color:#888;font-size:14px;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>
 
-<div class="modal" id="pModal"><div class="box"><img id="mImg" style="width:100%;height:220px;object-fit:contain"><h3 id="mTitle"></h3><div id="mPrice" class="p" style="font-size:18px;margin:8px 0"></div><button class="btn" id="addCart">Add to Cart</button><button class="btn" style="background:#333" onclick="pModal.style.display='none'">Close</button></div></div>
-<div class="modal" id="cModal"><div class="box"><h3>Cart</h3><div id="cItems"></div><h3 id="total"></h3><button class="btn" id="checkout">Checkout</button><button class="btn" style="background:#333" onclick="cModal.style.display='none'">Close</button></div></div>
-<div class="modal" id="lModal"><div class="box"><h3 style="text-align:center">Welcome</h3><input id="lEmail" placeholder="Email"><input id="lPass" type="password" placeholder="Password"><button class="btn" id="doLogin">Login</button><button class="btn" style="background:#fff;color:#333;border:1px solid #ddd" id="doRegister">Register</button><button class="btn" style="background:#4285f4" id="doGoogle">Login with Google</button><button class="btn" style="background:#333" onclick="lModal.style.display='none'">Close</button></div></div>
-<div class="modal" id="chModal"><div class="box"><h3>Delivery</h3><input id="cName" placeholder="Name"><input id="cPhone" placeholder="Phone"><input id="cAddr" placeholder="Address"><button class="btn" id="placeOrder">Confirm Order</button><button class="btn" style="background:#333" onclick="chModal.style.display='none'">Cancel</button></div></div>
+<div class="nav">
+    <div onclick="window.scrollTo({top:0, behavior:'smooth'})">🏠 Home</div>
+    <div id="bCart">🛒 Cart</div>
+</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+<a class="wa" href="https://wa.me/8801XXXXXXXXX" target="_blank">💬</a>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAOf_bi5nMZm5Cb7nuxe4cEB63MkciwcU0",
-  authDomain: "kiza-shop-6ee3c.firebaseapp.com",
-  projectId: "kiza-shop-6ee3c",
-  storageBucket: "kiza-shop-6ee3c.firebasestorage.app",
-  messagingSenderId: "876648757427",
-  appId: "1:876648757427:web:dac218cde5ac290ad2d8c6",
-  measurementId: "G-H7JBEFCX35"
-};
+<!-- প্রোডাক্ট ডিটেইলস মোডাল -->
+<div class="modal" id="pModal">
+    <div class="box">
+        <img id="mImg" style="width:100%;height:220px;object-fit:contain">
+        <h3 id="mTitle" style="margin-top:10px;font-size:16px;"></h3>
+        <div id="mPrice" class="p" style="font-size:18px;margin:8px 0"></div>
+        <button class="btn" id="addCart">Add to Cart</button>
+        <button class="btn" style="background:#555" onclick="document.getElementById('pModal').style.display='none'">Close</button>
+    </div>
+</div>
 
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);const auth=getAuth(app);const provider=new GoogleAuthProvider();
-let all=[], cart=JSON.parse(localStorage.getItem('kizaCart')||'[]'), sel=null, cat='all', sTxt='';
-function updCart(){document.getElementById('cartCnt').innerText=cart.length;localStorage.setItem('kizaCart',JSON.stringify(cart));}updCart();
-onSnapshot(query(collection(db,"products"), orderBy("createdAt","desc")), snap=>{
-  all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));
-  document.getElementById('loadTxt').style.display = all.length?'none':'block';
-  if(all.length===0) document.getElementById('loadTxt').innerText='No Products Yet! Admin থেকে Add করুন';
-  render();
-});
-function render(){
-  const grid=document.getElementById('grid');grid.innerHTML='';
-  all.filter(p=>(cat==='all'||p.category===cat) && p.title.toLowerCase().includes(sTxt.toLowerCase())).forEach(p=>{
-    const d=document.createElement('div');d.className='card';
-    d.innerHTML=`<img src="${p.img}" loading="lazy"><div class="t">${p.title}</div><div class="p">৳${p.price}</div>`;
-    d.onclick=()=>{sel=p;document.getElementById('mImg').src=p.img;document.getElementById('mTitle').innerText=p.title;document.getElementById('mPrice').innerText='৳'+p.price;document.getElementById('pModal').style.display='flex';};
-    grid.appendChild(d);
-  });
-}
-document.getElementById('cats').querySelectorAll('.cat').forEach(c=>c.onclick=()=>{document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));c.classList.add('active');cat=c.dataset.c;render();});
-document.getElementById('searchInput').oninput=e=>{sTxt=e.target.value;render();};
-document.getElementById('addCart').onclick=()=>{cart.push(sel);updCart();document.getElementById('pModal').style.display='none';alert('Added');};
-function openCart(){document.getElementById('cModal').style.display='flex';let h='',t=0;cart.forEach((p,i)=>{t+=Number(p.price);h+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee"><span>${p.title}</span><span onclick="window.del(${i})" style="color:red">X</span></div>`;});document.getElementById('cItems').innerHTML=h||'Empty';document.getElementById('total').innerText='Total: ৳'+t;}
-window.del=i=>{cart.splice(i,1);updCart();openCart();};
-document.getElementById('cartIcon').onclick=openCart;document.getElementById('bCart').onclick=openCart;
-document.getElementById('checkout').onclick=()=>{if(!auth.currentUser){alert('Login First');document.getElementById('lModal').style.display='flex';return;}document.getElementById('cModal').style.display='none';document.getElementById('chModal').style.display='flex';};
-document.getElementById('placeOrder').onclick=async()=>{if(!cName.value||!cPhone.value||!cAddr.value)return alert('Fill all');try{await addDoc(collection(db,"orders"),{name:cName.value,phone:cPhone.value,addr:cAddr.value,items:cart,total:cart.reduce((a,b)=>a+Number(b.price),0),uid:auth.currentUser.uid,email:auth.currentUser.email,date:new Date()});alert('Order Success');cart=[];updCart();document.getElementById('chModal').style.display='none';}catch(e){alert(e.message);}};
-document.getElementById('loginBtn').onclick=document.getElementById('bAcc').onclick=()=>{if(auth.currentUser)signOut(auth);else document.getElementById('lModal').style.display='flex';};
-document.getElementById('doLogin').onclick=()=>signInWithEmailAndPassword(auth,lEmail.value,lPass.value).then(()=>document.getElementById('lModal').style.display='none').catch(e=>alert(e.message));
-document.getElementById('doRegister').onclick=()=>createUserWithEmailAndPassword(auth,lEmail.value,lPass.value).then(()=>{alert('Registered');document.getElementById('lModal').style.display='none';}).catch(e=>alert(e.message));
-document.getElementById('doGoogle').onclick=()=>signInWithPopup(auth,provider).then(()=>document.getElementById('lModal').style.display='none').catch(e=>alert(e.message));
-onAuthStateChanged(auth,u=>{document.getElementById('loginBtn').innerText=u?u.email.split('@')[0]:'Login / Register';});
+<!-- কার্ট মোডাল -->
+<div class="modal" id="cModal">
+    <div class="box">
+        <h3>Shopping Cart</h3>
+        <div id="cItems" style="margin:12px 0;max-height:200px;overflow-y:auto"></div>
+        <h3 id="total" style="text-align:right;margin-bottom:10px;"></h3>
+        <button class="btn" id="checkout">Checkout</button>
+        <button class="btn" style="background:#555" onclick="document.getElementById('cModal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<!-- চেকআউট/অর্ডার মোডাল -->
+<div class="modal" id="chModal">
+    <div class="box">
+        <h3>ডেলিভারি তথ্য দিন</h3>
+        <input id="cName" placeholder="আপনার নাম">
+        <input id="cPhone" placeholder="মোবাইল নম্বর">
+        <input id="cAddr" placeholder="পূর্ণাঙ্গ ঠিকানা">
+        <button class="btn" id="placeOrder">অর্ডার কনফার্ম করুন</button>
+        <button class="btn" style="background:#555" onclick="document.getElementById('chModal').style.display='none'">বাতিল</button>
+    </div>
+</div>
+
+<script>
+    let all = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
+    let cart = JSON.parse(localStorage.getItem('kinzaCart') || '[]');
+    let sel = null, cat = 'all', sTxt = '';
+
+    function updCart() {
+        document.getElementById('cartCnt').innerText = cart.length;
+        localStorage.setItem('kinzaCart', JSON.stringify(cart));
+    }
+    updCart();
+
+    function render() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        const filtered = all.filter(p => (cat === 'all' || p.category === cat) && p.title.toLowerCase().includes(sTxt.toLowerCase()));
+        
+        document.getElementById('loadTxt').style.display = filtered.length ? 'none' : 'block';
+
+        filtered.forEach(p => {
+            const d = document.createElement('div');
+            d.className = 'card';
+            d.innerHTML = `<img src="${p.img}" loading="lazy"><div class="t">${p.title}</div><div class="p">৳${p.price}</div>`;
+            d.onclick = () => {
+                sel = p;
+                document.getElementById('mImg').src = p.img;
+                document.getElementById('mTitle').innerText = p.title;
+                document.getElementById('mPrice').innerText = '৳' + p.price;
+                document.getElementById('pModal').style.display = 'flex';
+            };
+            grid.appendChild(d);
+        });
+    }
+    render();
+
+    document.getElementById('cats').querySelectorAll('.cat').forEach(c => c.onclick = () => {
+        document.querySelectorAll('.cat').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+        cat = c.dataset.c;
+        render();
+    });
+
+    document.getElementById('searchInput').oninput = e => { sTxt = e.target.value; render(); };
+
+    document.getElementById('addCart').onclick = () => {
+        cart.push(sel);
+        updCart();
+        document.getElementById('pModal').style.display = 'none';
+        alert('কার্টে যোগ করা হয়েছে!');
+    };
+
+    function openCart() {
+        document.getElementById('cModal').style.display = 'flex';
+        let h = '', t = 0;
+        cart.forEach((p, i) => {
+            t += Number(p.price);
+            h += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee">
+                    <span style="font-size:13px">${p.title} (৳${p.price})</span>
+                    <span onclick="delCart(${i})" style="color:red;cursor:pointer;font-weight:bold">✕</span>
+                  </div>`;
+        });
+        document.getElementById('cItems').innerHTML = h || '<p style="text-align:center;color:#888">কার্ট খালি</p>';
+        document.getElementById('total').innerText = 'মোট: ৳' + t;
+    }
+
+    window.delCart = i => { cart.splice(i, 1); updCart(); openCart(); };
+
+    document.getElementById('cartIcon').onclick = openCart;
+    document.getElementById('bCart').onclick = openCart;
+
+    document.getElementById('checkout').onclick = () => {
+        if(!cart.length) return alert('আপনার কার্ট খালি!');
+        document.getElementById('cModal').style.display = 'none';
+        document.getElementById('chModal').style.display = 'flex';
+    };
+
+    document.getElementById('placeOrder').onclick = () => {
+        const name = document.getElementById('cName').value;
+        const phone = document.getElementById('cPhone').value;
+        const addr = document.getElementById('cAddr').value;
+        if(!name || !phone || !addr) return alert('সকল তথ্য দিন!');
+
+        const orders = JSON.parse(localStorage.getItem('kinzaOrders') || '[]');
+        orders.push({
+            name, phone, addr, items: cart, 
+            total: cart.reduce((a, b) => a + Number(b.price), 0),
+            date: new Date().toLocaleString()
+        });
+        localStorage.setItem('kinzaOrders', JSON.stringify(orders));
+
+        alert('আপনার অর্ডার সফলভাবে গৃহীত হয়েছে!');
+        cart = [];
+        updCart();
+        document.getElementById('chModal').style.display = 'none';
+    };
 </script>
 </body>
 </html>
