@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KINZA SHOP</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
-        /* ক্লোজ বাটনের জন্য সামান্য সিএসএস স্টাইল */
         .close-btn {
             position: absolute;
             top: 10px;
@@ -16,12 +20,8 @@
             color: #888;
             cursor: pointer;
         }
-        .close-btn:hover {
-            color: #000;
-        }
-        .modal .box {
-            position: relative;
-        }
+        .close-btn:hover { color: #000; }
+        .modal .box { position: relative; }
     </style>
 </head>
 <body>
@@ -61,7 +61,7 @@
     <div id="bCart">🛒 Cart</div>
 </div>
 
-<a class="wa" href="https://wa.me/8801909242397" target="_blank">💬</a>
+<a class="wa" href="https://wa.me/8801XXXXXXXXX" target="_blank">💬</a>
 
 <!-- প্রোডাক্ট ডিটেইলস মোডাল (পপআপ) -->
 <div class="modal" id="pModal">
@@ -102,28 +102,52 @@
 </div>
 
 <script>
-    let all = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
+    // Firebase Config Setup
+    const firebaseConfig = {
+        apiKey: "AIzaSyDyXPTMCYmKlRlDPY__RWb25H2sg7sSh8o",
+        authDomain: "kinza-shop.firebaseapp.com",
+        projectId: "kinza-shop",
+        storageBucket: "kinza-shop.firebasestorage.app",
+        messagingSenderId: "379851505630",
+        appId: "1:379851505630:web:84343983ab0f8f4883274f",
+        measurementId: "G-8YGK45QM6M"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let all = [];
     let cart = JSON.parse(localStorage.getItem('kinzaCart') || '[]');
     let sel = null, cat = 'all', sTxt = '';
-
-    // ১ সেকেন্ড অটো স্লাইডার
-    let banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
+    let banners = [];
     let currentBannerIdx = 0;
+    let bannerTimer = null;
 
-    if (banners.length > 0) {
-        const bannerImg = document.getElementById('sliderBanner');
-        bannerImg.src = banners[0].img;
-        
-        setInterval(() => {
-            currentBannerIdx = (currentBannerIdx + 1) % banners.length;
-            bannerImg.style.opacity = 0.2;
+    // Firebase Firestore থেকে ব্যানার লোড করা
+    db.collection('banners').onSnapshot(snapshot => {
+        banners = snapshot.docs.map(doc => doc.data());
+        if (banners.length > 0) {
+            const bannerImg = document.getElementById('sliderBanner');
+            bannerImg.src = banners[0].img;
             
-            setTimeout(() => {
-                bannerImg.src = banners[currentBannerIdx].img;
-                bannerImg.style.opacity = 1;
-            }, 200);
-        }, 1000); 
-    }
+            if (bannerTimer) clearInterval(bannerTimer);
+            bannerTimer = setInterval(() => {
+                currentBannerIdx = (currentBannerIdx + 1) % banners.length;
+                bannerImg.style.opacity = 0.2;
+                
+                setTimeout(() => {
+                    bannerImg.src = banners[currentBannerIdx].img;
+                    bannerImg.style.opacity = 1;
+                }, 200);
+            }, 3000); 
+        }
+    });
+
+    // Firebase Firestore থেকে প্রোডাক্ট লোড করা
+    db.collection('products').onSnapshot(snapshot => {
+        all = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        render();
+    });
 
     function updCart() {
         document.getElementById('cartCnt').innerText = cart.length;
@@ -146,25 +170,20 @@
             grid.appendChild(d);
         });
     }
-    render();
 
-    // মোডাল খোলার ফাংশন
     function openModal(p) {
         sel = p;
         document.getElementById('mImg').src = p.img;
         document.getElementById('mTitle').innerText = p.title;
         document.getElementById('mPrice').innerText = '৳' + p.price;
         document.getElementById('pModal').style.display = 'flex';
-        
         history.pushState({ modalOpen: true }, "");
     }
 
-    // মোডাল বন্ধ করার প্রাইমারি ফাংশন
     function closeModal() {
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     }
 
-    // ম্যানুয়াল ক্লোজ (বাটন/ক্লিকে) ব্যাক হিস্ট্রি অ্যাডজাস্টমেন্টসহ
     function closeModalWithHistory() {
         closeModal();
         if (history.state && history.state.modalOpen) {
@@ -172,12 +191,8 @@
         }
     }
 
-    // ফোনে ব্যাক বাটন প্রেস করলে মোডাল বন্ধ হবে
-    window.onpopstate = function() {
-        closeModal();
-    };
+    window.onpopstate = function() { closeModal(); };
 
-    // মোডালের বাইরের ফাঁকা জায়গায় ক্লিক করলে পপআপ বন্ধ হবে
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
             closeModalWithHistory();
@@ -233,25 +248,30 @@
         document.getElementById('chModal').style.display = 'flex';
     };
 
-    document.getElementById('placeOrder').onclick = () => {
+    // ফায়ারবেসে অর্ডার সেভ করা
+    document.getElementById('placeOrder').onclick = async () => {
         const name = document.getElementById('cName').value;
         const phone = document.getElementById('cPhone').value;
         const addr = document.getElementById('cAddr').value;
         if(!name || !phone || !addr) return alert('সকল তথ্য দিন!');
 
-        const orders = JSON.parse(localStorage.getItem('kinzaOrders') || '[]');
-        orders.push({
-            name, phone, addr, items: cart, 
-            total: cart.reduce((a, b) => a + Number(b.price), 0),
-            date: new Date().toLocaleString()
-        });
-        localStorage.setItem('kinzaOrders', JSON.stringify(orders));
+        try {
+            await db.collection('ordersVia Browser এবং Chrome-এর মধ্যে এই ধরনের অমিল হওয়ার মূল কারণ হলো **Cache (ক্যাশ)**, **Local Storage / Database Synching**, অথবা **CORS / API Caching** সমস্যা[cite: 1, 2]।
 
-        alert('আপনার অর্ডার সফলভাবে গৃহীত হয়েছে!');
-        cart = [];
-        updCart();
-        closeModalWithHistory();
-    };
-</script>
-</body>
-</html>
+প্রধান কারণসমূহ ও সমাধানের উপায়:
+
+### ১. ব্রাউজার ক্যাশ (Browser Cache)
+Via Browser অনেক সময় ডাটা বা ইমেজ আগ্রাসীভাবে (Aggressively) ক্যাশ করে রাখে[cite: 1]। ফলে ব্যাকএন্ড বা ডাটাবেজে পরিবর্তন হলেও ব্রাউজার পুরনো লোড হওয়া ভার্সনই দেখাতে থাকে[cite: 1]।
+* **সমাধান:** Via Browser-এর Settings > Privacy/Clear Data-তে গিয়ে Cache ও Site Data ক্লিয়ার করে পেজটি রিফ্রেশ দিন[cite: 1]।
+
+### ২. LocalStorage / SessionStorage ডাটা ফ্রন্টএন্ডে থাকা
+নতুন প্রডাক্ট যোগ করা বা ব্যানার পরিবর্তনের ডাটা যদি ব্রাউজারের LocalStorage বা IndexedDB-তে সেভ করা থাকে, তবে তা শুধু নির্দিষ্ট ব্রাউজারেই (যেমন Chrome) কাজ করবে[cite: 2]। অন্য ব্রাউজারে (Via Browser) সেই ডাটা সিঙ্ক হবে না[cite: 1]।
+* **সমাধান:** ডাটা Fetching যেন সরাসরি ডাটাবেজ/API থেকে হয় (যেমন: MongoDB/Firebase বা API endpoint) তা নিশ্চিত করুন।
+
+### ৩. API Cache / Service Worker
+আপনার ফ্রন্টএন্ডে (Vercel-এ হোস্ট করা) যদি `fetch` বা API কল করার সময় ক্যাশিং এনাবল করা থাকে (`cache: 'force-cache'`), তাহলে ব্রাউজার ভেদে পুরোনো রেসপন্স দেখাতে পারে[cite: 1, 2]।
+* **সমাধান:** API থেকে প্রোডাক্ট ও ব্যানারের ডাটা আনার সময় `cache: 'no-store'` অথবা `revalidate: 0` ব্যবহার করুন।
+
+### ৪. CORS / User-Agent বা Lightweight Browser-এর সীমাবদ্ধতা
+Via Browser একটি লাইটওয়েট ইন-অ্যাপ বা মিনি ব্রাউজার হওয়ায় এটি কিছু আধুনিক JavaScript Syntax, ES6+ features বা Fetch request ঠিকমতো হ্যান্ডেল না-ও করতে পারে[cite: 1]।
+* **সমাধান:** ব্রাউজারে F12 / Inspect Elements বা Console Log চেক করে দেখুন কোনো Network বা JS Script Error আসছে কি না।
