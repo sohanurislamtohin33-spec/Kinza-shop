@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinza Shop - Admin Panel</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase SDKs (Compat Versions) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
     <div id="loginBox" class="box" style="margin: 50px auto; max-width: 350px;">
         <h2 style="text-align: center; margin-bottom: 15px;">অ্যাডমিন লগইন</h2>
         <input type="text" id="adminUser" placeholder="ইউজারনেম">
-        <input type="password" id="adminPass" placeholder="পাসওয়ার্ড">
+        <input type="password" id="adminPass" placeholder="পাসওয়ার্ড">
         <button class="btn" onclick="login()">লগইন করুন</button>
         <p id="errMsg" style="color:red; font-size:12px; margin-top:5px; text-align:center;"></p>
     </div>
@@ -64,6 +68,21 @@
     </div>
 
     <script>
+        // Firebase Config Setup
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyXPTMCYmKlRlDPY__RWb25H2sg7sSh8o",
+            authDomain: "kinza-shop.firebaseapp.com",
+            projectId: "kinza-shop",
+            storageBucket: "kinza-shop.firebasestorage.app",
+            messagingSenderId: "379851505630",
+            appId: "1:379851505630:web:84343983ab0f8f4883274f",
+            measurementId: "G-8YGK45QM6M"
+        };
+
+        // Firebase Initializing
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const USERNAME = "admin";
         const PASSWORD = "kinza123";
 
@@ -72,7 +91,7 @@
                 localStorage.setItem('kinzaAdminLogged', 'true');
                 showPanel();
             } else {
-                document.getElementById('errMsg').innerText = "ভুল ইউজারনেম বা পাসওয়ার্ড!";
+                document.getElementById('errMsg').innerText = "ভুল ইউজারনেম বা পাসওয়ার্ড!";
             }
         }
 
@@ -117,7 +136,7 @@
             const banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
             banners.push({ id: Date.now(), img: webpImg });
             localStorage.setItem('kinzaBanners', JSON.stringify(banners));
-            alert('ব্যানার যুক্ত হয়েছে!');
+            alert('ব্যানার যুক্ত হয়েছে!');
             loadAdminData();
         }
 
@@ -137,7 +156,7 @@
             products.push({ id: Date.now(), title, price, oldPrice, rating, category: cat, img: webpImg });
             localStorage.setItem('kinzaProducts', JSON.stringify(products));
 
-            alert('পণ্য যোগ হয়েছে!');
+            alert('পণ্য যোগ হয়েছে!');
             loadAdminData();
         }
 
