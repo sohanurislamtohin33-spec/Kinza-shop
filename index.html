@@ -1,277 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KINZA SHOP</title>
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
-    <style>
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #888;
-            cursor: pointer;
-        }
-        .close-btn:hover { color: #000; }
-        .modal .box { position: relative; }
-    </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kinza Shop — অনলাইন মার্কেটপ্লেস</title>
+<meta name="description" content="Kinza Shop — সব ধরনের পণ্য, সহজ অর্ডার ও ক্যাশ অন ডেলিভারি।">
+<meta name="theme-color" content="#ff4d2d"><link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
 </head>
 <body>
+<header class="topbar">
+  <div class="topline"><div class="container top-inner">
+    <span>Kinza Shop-এ স্বাগতম</span><span>ক্যাশ অন ডেলিভারি • সহজ অর্ডার</span>
+  </div></div>
+  <div class="container nav">
+    <a class="brand" href="./"><img src="logo.png" alt="Kinza Shop"><span>Kinza <b>Shop</b></span></a>
+    <div class="search-wrap"><input id="searchInput" type="search" placeholder="পণ্য, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন..." autocomplete="off"><button id="searchBtn">খুঁজুন</button></div>
+    <button id="accountBtn" class="nav-action">👤 <span id="accountText">অ্যাকাউন্ট</span></button>
+    <button id="cartBtn" class="nav-action cart-action">🛒 <span>কার্ট</span><i id="cartCount">0</i></button>
+  </div>
+</header>
 
-<div class="header">
-    <div class="top">
-        <div class="logo">KINZA SHOP</div>
-        <div class="right">
-            <div class="cart" id="cartIcon">🛒<span class="cnt" id="cartCnt">0</span></div>
-        </div>
-    </div>
-    <div class="searchWrap">
-        <input id="searchInput" placeholder="Search in Kinza Shop...">
-        <span>🔍</span>
-    </div>
-</div>
+<main>
+<section class="container hero-section">
+  <aside class="category-panel"><div class="panel-title">সব ক্যাটাগরি</div><div id="categoryList"></div></aside>
+  <div class="hero-banner"><div><span class="eyebrow">KINZA SHOP</span><h1>সবকিছু এক জায়গায়।<br><strong>সহজে কিনুন।</strong></h1><p>ফ্যাশন, ইলেকট্রনিক্স, গ্যাজেট, ঘড়ি, গ্রোসারি এবং আরও অনেক কিছু।</p><button class="primary" id="shopNow">এখনই শপিং করুন →</button></div><div class="hero-badge">⚡<small>দ্রুত শপিং</small></div></div>
+</section>
 
-<!-- ব্যানার স্লাইডার -->
-<div style="background:#fff; overflow:hidden; position:relative; width:100%; height:160px;">
-    <img id="sliderBanner" src="https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150322012.jpg" style="width:100%; height:160px; object-fit:cover; transition: opacity 0.4s ease-in-out;" alt="Banner">
-</div>
+<section class="container chips" id="chips"></section>
+<section id="products" class="container section-head"><div><span class="eyebrow">FLASH DEALS</span><h2>আজকের সেরা পণ্য</h2></div><span id="resultCount" class="muted"></span></section>
+<section class="container product-grid" id="productGrid"></section>
+<div id="loadMoreSentinel" class="sentinel"></div><div id="loading" class="loading"><span></span> আরও পণ্য আসছে...</div>
+</main>
 
-<div class="cats" id="cats">
-    <div class="cat active" data-c="all">All</div>
-    <div class="cat" data-c="Clothing">Clothing</div>
-    <div class="cat" data-c="Girlsclothes">Girls</div>
-    <div class="cat" data-c="Watch">Watch</div>
-    <div class="cat" data-c="Electronics">Electronics</div>
-</div>
+<div id="productModal" class="modal" hidden><div class="sheet product-sheet"><button class="close" data-close="productModal">×</button><img id="modalImg" class="modal-img" alt=""><div class="modal-body"><div id="modalCategory" class="pill"></div><h2 id="modalTitle"></h2><div id="modalPrice" class="big-price"></div><div id="modalOldPrice" class="old-price"></div><p id="modalDescription" class="description"></p><div class="modal-actions"><button id="buyNow" class="primary">এখনই অর্ডার</button><button id="addCart" class="secondary">কার্টে রাখুন</button></div></div></div></div>
 
-<h3 style="padding:12px 10px 5px; font-size:16px; color:#333;">Just For You</h3>
-<div class="grid" id="grid"></div>
-<p id="loadTxt" style="text-align:center;padding:20px;color:#888;font-size:14px;display:none;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>
+<div id="accountModal" class="modal" hidden><div class="sheet small"><button class="close" data-close="accountModal">×</button><div id="accountBody"></div></div></div>
+<div id="cartModal" class="modal" hidden><div class="sheet small"><button class="close" data-close="cartModal">×</button><h2>আমার কার্ট</h2><div id="cartBody"></div></div></div>
+<div id="checkoutModal" class="modal" hidden><div class="sheet small"><button class="close" data-close="checkoutModal">×</button><h2>অর্ডার করুন</h2><div id="checkoutSummary" class="summary"></div><form id="orderForm"><label>নাম<input id="custName" required></label><label>মোবাইল<input id="custPhone" inputmode="tel" required></label><label>ডেলিভারি ঠিকানা<textarea id="custAddress" rows="3" required></textarea></label><label>পেমেন্ট <select id="paymentMethod"><option>Cash on Delivery</option></select></label><button class="primary" id="confirmOrder">অর্ডার কনফার্ম করুন</button></form></div></div>
+<div id="ordersModal" class="modal" hidden><div class="sheet small"><button class="close" data-close="ordersModal">×</button><h2>আমার অর্ডার</h2><div id="myOrders"></div></div></div>
 
-<div class="nav">
-    <div onclick="window.scrollTo({top:0, behavior:'smooth'})">🏠 Home</div>
-    <div id="bCart">🛒 Cart</div>
-</div>
-
-<a class="wa" href="https://wa.me/8801XXXXXXXXX" target="_blank">💬</a>
-
-<!-- প্রোডাক্ট ডিটেইলস মোডাল (পপআপ) -->
-<div class="modal" id="pModal">
-    <div class="box">
-        <span class="close-btn" onclick="closeModalWithHistory()">&times;</span>
-        <img id="mImg" class="big-modal-img">
-        <h3 id="mTitle" style="margin-top:12px; font-size:16px; color:#333;"></h3>
-        <div id="mPrice" class="p" style="font-size:18px; margin:8px 0"></div>
-        
-        <div style="display:flex; gap:8px; margin-top:12px;">
-            <button class="btn" style="background:#ff5722; flex:1;" id="buyNowBtn">⚡ Buy Now</button>
-            <button class="btn" style="background:#e91e63; flex:1;" id="addCartBtn">🛒 Add to Cart</button>
-        </div>
-    </div>
-</div>
-
-<!-- কার্ট মোডাল -->
-<div class="modal" id="cModal">
-    <div class="box">
-        <span class="close-btn" onclick="closeModalWithHistory()">&times;</span>
-        <h3>Shopping Cart</h3>
-        <div id="cItems" style="margin:12px 0;max-height:200px;overflow-y:auto"></div>
-        <h3 id="total" style="text-align:right;margin-bottom:10px;"></h3>
-        <button class="btn" id="checkout">Checkout</button>
-    </div>
-</div>
-
-<!-- চেকআউট মোডাল -->
-<div class="modal" id="chModal">
-    <div class="box">
-        <span class="close-btn" onclick="closeModalWithHistory()">&times;</span>
-        <h3>ডেলিভারি তথ্য দিন</h3>
-        <input id="cName" placeholder="আপনার নাম">
-        <input id="cPhone" placeholder="মোবাইল নম্বর">
-        <input id="cAddr" placeholder="পূর্ণাঙ্গ ঠিকানা">
-        <button class="btn" id="placeOrder">অর্ডার কনফার্ম করুন</button>
-    </div>
-</div>
-
-<script>
-    // Firebase Config Setup
-    const firebaseConfig = {
-        apiKey: "AIzaSyDyXPTMCYmKlRlDPY__RWb25H2sg7sSh8o",
-        authDomain: "kinza-shop.firebaseapp.com",
-        projectId: "kinza-shop",
-        storageBucket: "kinza-shop.firebasestorage.app",
-        messagingSenderId: "379851505630",
-        appId: "1:379851505630:web:84343983ab0f8f4883274f",
-        measurementId: "G-8YGK45QM6M"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let all = [];
-    let cart = JSON.parse(localStorage.getItem('kinzaCart') || '[]');
-    let sel = null, cat = 'all', sTxt = '';
-    let banners = [];
-    let currentBannerIdx = 0;
-    let bannerTimer = null;
-
-    // Firebase Firestore থেকে ব্যানার লোড করা
-    db.collection('banners').onSnapshot(snapshot => {
-        banners = snapshot.docs.map(doc => doc.data());
-        if (banners.length > 0) {
-            const bannerImg = document.getElementById('sliderBanner');
-            bannerImg.src = banners[0].img;
-            
-            if (bannerTimer) clearInterval(bannerTimer);
-            bannerTimer = setInterval(() => {
-                currentBannerIdx = (currentBannerIdx + 1) % banners.length;
-                bannerImg.style.opacity = 0.2;
-                
-                setTimeout(() => {
-                    bannerImg.src = banners[currentBannerIdx].img;
-                    bannerImg.style.opacity = 1;
-                }, 200);
-            }, 3000); 
-        }
-    });
-
-    // Firebase Firestore থেকে প্রোডাক্ট লোড করা
-    db.collection('products').onSnapshot(snapshot => {
-        all = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        render();
-    });
-
-    function updCart() {
-        document.getElementById('cartCnt').innerText = cart.length;
-        localStorage.setItem('kinzaCart', JSON.stringify(cart));
-    }
-    updCart();
-
-    function render() {
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-        const filtered = all.filter(p => (cat === 'all' || p.category === cat) && p.title.toLowerCase().includes(sTxt.toLowerCase()));
-        
-        document.getElementById('loadTxt').style.display = filtered.length ? 'none' : 'block';
-
-        filtered.forEach(p => {
-            const d = document.createElement('div');
-            d.className = 'card';
-            d.innerHTML = `<img src="${p.img}" loading="lazy"><div class="t">${p.title}</div><div class="p">৳${p.price}</div>`;
-            d.onclick = () => openModal(p);
-            grid.appendChild(d);
-        });
-    }
-
-    function openModal(p) {
-        sel = p;
-        document.getElementById('mImg').src = p.img;
-        document.getElementById('mTitle').innerText = p.title;
-        document.getElementById('mPrice').innerText = '৳' + p.price;
-        document.getElementById('pModal').style.display = 'flex';
-        history.pushState({ modalOpen: true }, "");
-    }
-
-    function closeModal() {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    }
-
-    function closeModalWithHistory() {
-        closeModal();
-        if (history.state && history.state.modalOpen) {
-            history.back();
-        }
-    }
-
-    window.onpopstate = function() { closeModal(); };
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            closeModalWithHistory();
-        }
-    };
-
-    document.getElementById('cats').querySelectorAll('.cat').forEach(c => c.onclick = () => {
-        document.querySelectorAll('.cat').forEach(x => x.classList.remove('active'));
-        c.classList.add('active');
-        cat = c.dataset.c;
-        render();
-    });
-
-    document.getElementById('searchInput').oninput = e => { sTxt = e.target.value; render(); };
-
-    document.getElementById('addCartBtn').onclick = () => {
-        cart.push(sel);
-        updCart();
-        closeModalWithHistory();
-        alert('কার্টে যোগ করা হয়েছে!');
-    };
-
-    document.getElementById('buyNowBtn').onclick = () => {
-        cart = [sel];
-        updCart();
-        closeModal();
-        document.getElementById('chModal').style.display = 'flex';
-    };
-
-    function openCart() {
-        document.getElementById('cModal').style.display = 'flex';
-        history.pushState({ modalOpen: true }, "");
-        let h = '', t = 0;
-        cart.forEach((p, i) => {
-            t += Number(p.price);
-            h += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee">
-                    <span style="font-size:13px">${p.title} (৳${p.price})</span>
-                    <span onclick="delCart(${i})" style="color:red;cursor:pointer;font-weight:bold">✕</span>
-                  </div>`;
-        });
-        document.getElementById('cItems').innerHTML = h || '<p style="text-align:center;color:#888">কার্ট খালি</p>';
-        document.getElementById('total').innerText = 'মোট: ৳' + t;
-    }
-
-    window.delCart = i => { cart.splice(i, 1); updCart(); openCart(); };
-
-    document.getElementById('cartIcon').onclick = openCart;
-    document.getElementById('bCart').onclick = openCart;
-
-    document.getElementById('checkout').onclick = () => {
-        if(!cart.length) return alert('আপনার কার্ট খালি!');
-        closeModal();
-        document.getElementById('chModal').style.display = 'flex';
-    };
-
-    // ফায়ারবেসে অর্ডার সেভ করা
-    document.getElementById('placeOrder').onclick = async () => {
-        const name = document.getElementById('cName').value;
-        const phone = document.getElementById('cPhone').value;
-        const addr = document.getElementById('cAddr').value;
-        if(!name || !phone || !addr) return alert('সকল তথ্য দিন!');
-
-        try {
-            await db.collection('ordersVia Browser এবং Chrome-এর মধ্যে এই ধরনের অমিল হওয়ার মূল কারণ হলো **Cache (ক্যাশ)**, **Local Storage / Database Synching**, অথবা **CORS / API Caching** সমস্যা[cite: 1, 2]।
-
-প্রধান কারণসমূহ ও সমাধানের উপায়:
-
-### ১. ব্রাউজার ক্যাশ (Browser Cache)
-Via Browser অনেক সময় ডাটা বা ইমেজ আগ্রাসীভাবে (Aggressively) ক্যাশ করে রাখে[cite: 1]। ফলে ব্যাকএন্ড বা ডাটাবেজে পরিবর্তন হলেও ব্রাউজার পুরনো লোড হওয়া ভার্সনই দেখাতে থাকে[cite: 1]।
-* **সমাধান:** Via Browser-এর Settings > Privacy/Clear Data-তে গিয়ে Cache ও Site Data ক্লিয়ার করে পেজটি রিফ্রেশ দিন[cite: 1]।
-
-### ২. LocalStorage / SessionStorage ডাটা ফ্রন্টএন্ডে থাকা
-নতুন প্রডাক্ট যোগ করা বা ব্যানার পরিবর্তনের ডাটা যদি ব্রাউজারের LocalStorage বা IndexedDB-তে সেভ করা থাকে, তবে তা শুধু নির্দিষ্ট ব্রাউজারেই (যেমন Chrome) কাজ করবে[cite: 2]। অন্য ব্রাউজারে (Via Browser) সেই ডাটা সিঙ্ক হবে না[cite: 1]।
-* **সমাধান:** ডাটা Fetching যেন সরাসরি ডাটাবেজ/API থেকে হয় (যেমন: MongoDB/Firebase বা API endpoint) তা নিশ্চিত করুন।
-
-### ৩. API Cache / Service Worker
-আপনার ফ্রন্টএন্ডে (Vercel-এ হোস্ট করা) যদি `fetch` বা API কল করার সময় ক্যাশিং এনাবল করা থাকে (`cache: 'force-cache'`), তাহলে ব্রাউজার ভেদে পুরোনো রেসপন্স দেখাতে পারে[cite: 1, 2]।
-* **সমাধান:** API থেকে প্রোডাক্ট ও ব্যানারের ডাটা আনার সময় `cache: 'no-store'` অথবা `revalidate: 0` ব্যবহার করুন।
-
-### ৪. CORS / User-Agent বা Lightweight Browser-এর সীমাবদ্ধতা
-Via Browser একটি লাইটওয়েট ইন-অ্যাপ বা মিনি ব্রাউজার হওয়ায় এটি কিছু আধুনিক JavaScript Syntax, ES6+ features বা Fetch request ঠিকমতো হ্যান্ডেল না-ও করতে পারে[cite: 1]।
-* **সমাধান:** ব্রাউজারে F12 / Inspect Elements বা Console Log চেক করে দেখুন কোনো Network বা JS Script Error আসছে কি না।
+<nav class="bottom-nav"><a class="active" href="./"><span>⌂</span>হোম</a><button id="mobileCategories"><span>☷</span>ক্যাটাগরি</button><button id="mobileCart"><span>🛒<i id="mobileCartCount">0</i></span>কার্ট</button><button id="bottomAccount"><span>♙</span>অ্যাকাউন্ট</button></nav>
+<footer><div class="container footer-inner"><div><strong>Kinza Shop</strong><p>দ্রুত, সহজ, নির্ভরযোগ্য অনলাইন শপিং।</p></div><div><b>কাস্টমার কেয়ার</b><p>Cash on Delivery available</p></div><a href="admin.html">Admin Panel</a></div></footer>
+</body></html>
