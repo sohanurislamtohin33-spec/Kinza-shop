@@ -32,7 +32,7 @@
         <div class="box" style="margin-top: 10px;">
             <label style="font-size: 12px; font-weight: bold;">ব্যানার ছবি বাছুন:</label>
             <input type="file" id="bImg" accept="image/*">
-            <button class="btn" onclick="addBanner()">ব্যানার সেভ করুন</button>
+            <button class="btn" id="bSaveBtn" onclick="addBanner()">ব্যানার সেভ করুন</button>
         </div>
         <div id="bannerList" style="margin-top: 10px;"></div>
 
@@ -55,7 +55,7 @@
                 <option value="Electronics">Electronics</option>
             </select>
 
-            <button class="btn" onclick="addProduct()">পণ্য পাবলিশ করুন</button>
+            <button class="btn" id="pSaveBtn" onclick="addProduct()">পণ্য পাবলিশ করুন</button>
         </div>
 
         <hr style="margin: 20px 0;">
@@ -79,7 +79,7 @@
             measurementId: "G-8YGK45QM6M"
         };
 
-        // Firebase Initializing
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -103,11 +103,12 @@
         function showPanel() {
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            loadAdminData();
+            listenToFirebaseData();
         }
 
         if(localStorage.getItem('kinzaAdminLogged') === 'true') showPanel();
 
+        // ছবির সাইজ ছোট (WebP কম্প্রেস) করার ফাংশন
         function processImage(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -129,17 +130,32 @@
             });
         }
 
+        // ফায়ারবেসে ব্যানার যোগ করা
         async function addBanner() {
             const file = document.getElementById('bImg').files[0];
             if(!file) return alert('ছবি সিলেক্ট করুন!');
-            const webpImg = await processImage(file);
-            const banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
-            banners.push({ id: Date.now(), img: webpImg });
-            localStorage.setItem('kinzaBanners', JSON.stringify(banners));
-            alert('ব্যানার যুক্ত হয়েছে!');
-            loadAdminData();
+            
+            const btn = document.getElementById('bSaveBtn');
+            btn.disabled = true;
+            btn.innerText = "আপলোড হচ্ছে...";
+
+            try {
+                const webpImg = await processImage(file);
+                await db.collection('banners').add({
+                    img: webpImg,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('ব্যানার সফলভাবে ফায়ারবেসে সেভ হয়েছে!');
+                document.getElementById('bImg').value = '';
+            } catch(e) {
+                alert('ত্রুটি: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "ব্যানার সেভ করুন";
+            }
         }
 
+        // ফায়ারবেসে প্রোডাক্ট যোগ করা
         async function addProduct() {
             const title = document.getElementById('pTitle').value;
             const price = document.getElementById('pPrice').value;
@@ -150,60 +166,102 @@
 
             if(!title || !price || !file) return alert('পণ্যের নাম, দাম ও ছবি দিন!');
 
-            const webpImg = await processImage(file);
-            const products = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
-            
-            products.push({ id: Date.now(), title, price, oldPrice, rating, category: cat, img: webpImg });
-            localStorage.setItem('kinzaProducts', JSON.stringify(products));
+            const btn = document.getElementById('pSaveBtn');
+            btn.disabled = true;
+            btn.innerText = "পাবলিশ হচ্ছে...";
 
-            alert('পণ্য যোগ হয়েছে!');
-            loadAdminData();
+            try {
+                const webpImg = await processImage(file);
+                await db.collection('products').add({
+                    title,
+                    price: Number(price),
+                    oldPrice: oldPrice ? Number(oldPrice) : "",
+                    rating,
+                    category: cat,
+                    img: webpImg,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('পণ্য সফলভাবে ফায়ারবেসে পাবলিশ হয়েছে!');
+                document.getElementById('pTitle').value = '';
+                document.getElementById('pPrice').value = '';
+                document.getElementById('pOldPrice').value = '';
+                document.getElementById('pRating').value = '';
+                document.getElementById('pImg').value = '';
+            } catch(e) {
+                alert('ত্রুটি: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "পণ্য পাবলিশ করুন";
+            }
         }
 
-        function loadAdminData() {
-            const banners = JSON.parse(localStorage.getItem('kinzaBanners') || '[]');
-            let bHTML = '';
-            banners.forEach((b, i) => {
-                bHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px; margin-bottom:5px; border-radius:6px;">
-                    <img src="${b.img}" style="height:40px; width:80px; object-fit:cover;">
-                    <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px;" onclick="deleteBanner(${i})">ডিলিট</button>
-                </div>`;
+        // রিয়েলটাইমে ফায়ারবেস থেকে ডাটা শোনা ও দেখানো
+        function listenToFirebaseData() {
+            // ব্যানার লোড
+            db.collection('banners').onSnapshot(snapshot => {
+                let bHTML = '';
+                snapshot.docs.forEach(doc => {
+                    const b = doc.data();
+                    bHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px; margin-bottom:5px; border-radius:6px;">
+                        <img src="${b.img}" style="height:40px; width:80px; object-fit:cover;">
+                        <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteBanner('${doc.id}')">ডিলিট</button>
+                    </div>`;
+                });
+                document.getElementById('bannerList').innerHTML = bHTML || 'কোনো ব্যানার নেই';
             });
-            document.getElementById('bannerList').innerHTML = bHTML;
 
-            const products = JSON.parse(localStorage.getItem('kinzaProducts') || '[]');
-            let pHTML = '';
-            products.forEach((p, i) => {
-                pHTML += `<div style="background:#fff; padding:10px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${p.title}</b><br><span style="color:#e91e63">৳${p.price}</span> <del style="color:#888; font-size:12px">৳${p.oldPrice || ''}</del></div>
-                    <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px;" onclick="deleteProduct(${i})">ডিলিট</button>
-                </div>`;
+            // প্রোডাক্ট লোড
+            db.collection('products').onSnapshot(snapshot => {
+                let pHTML = '';
+                snapshot.docs.forEach(doc => {
+                    const p = doc.data();
+                    pHTML += `<div style="background:#fff; padding:10px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                        <div><b>${p.title}</b><br><span style="color:#e91e63">৳${p.price}</span> <del style="color:#888; font-size:12px">${p.oldPrice ? '৳' + p.oldPrice : ''}</del></div>
+                        <button style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteProduct('${doc.id}')">ডিলিট</button>
+                    </div>`;
+                });
+                document.getElementById('productList').innerHTML = pHTML || 'কোনো পণ্য নেই';
             });
-            document.getElementById('productList').innerHTML = pHTML || 'কোনো পণ্য নেই';
 
-            const orders = JSON.parse(localStorage.getItem('kinzaOrders') || '[]');
-            let oHTML = '';
-            orders.forEach((o, i) => {
-                oHTML += `<div style="background:#fff; padding:10px; margin-bottom:8px; border-radius:6px; border-left:4px solid #e91e63;">
-                    <b>নাম:</b> ${o.name} | <b>ফোন:</b> ${o.phone}<br>
-                    <b>ঠিকানা:</b> ${o.addr}<br><b>মোট বিল:</b> ৳${o.total}<br>
-                    <button style="background:red; color:#fff; border:none; padding:4px 8px; border-radius:4px; margin-top:5px;" onclick="deleteOrder(${i})">মুছুন</button>
-                </div>`;
+            // অর্ডার লোড
+            db.collection('orders').onSnapshot(snapshot => {
+                let oHTML = '';
+                snapshot.docs.forEach(doc => {
+                    const o = doc.data();
+                    let itemsSummary = '';
+                    if (o.items && o.items.length) {
+                        itemsSummary = o.items.map(i => `${i.title} (৳${i.price})`).join(', ');
+                    }
+                    oHTML += `<div style="background:#fff; padding:10px; margin-bottom:8px; border-radius:6px; border-left:4px solid #e91e63;">
+                        <b>নাম:</b> ${o.name} | <b>ফোন:</b> ${o.phone}<br>
+                        <b>ঠিকানা:</b> ${o.address}<br>
+                        <b>আইটেম:</b> ${itemsSummary || 'N/A'}<br>
+                        <b>মোট বিল:</b> ৳${o.totalAmount || 0}<br>
+                        <button style="background:red; color:#fff; border:none; padding:4px 8px; border-radius:4px; margin-top:5px; cursor:pointer;" onclick="deleteOrder('${doc.id}')">মুছুন</button>
+                    </div>`;
+                });
+                document.getElementById('orderList').innerHTML = oHTML || 'কোনো অর্ডার নেই';
             });
-            document.getElementById('orderList').innerHTML = oHTML || 'কোনো অর্ডার নেই';
         }
 
-        function deleteBanner(i) {
-            let b = JSON.parse(localStorage.getItem('kinzaBanners') || '[]'); b.splice(i, 1);
-            localStorage.setItem('kinzaBanners', JSON.stringify(b)); loadAdminData();
+        // ফায়ারবেস থেকে আইটেম ডিলিট করার ফাংশনসমূহ
+        async function deleteBanner(id) {
+            if(confirm('ব্যানারটি ডিলিট করতে চান?')) {
+                await db.collection('banners').doc(id).delete();
+            }
         }
-        function deleteProduct(i) {
-            let p = JSON.parse(localStorage.getItem('kinzaProducts') || '[]'); p.splice(i, 1);
-            localStorage.setItem('kinzaProducts', JSON.stringify(p)); loadAdminData();
+
+        async function deleteProduct(id) {
+            if(confirm('পণ্যটি ডিলিট করতে চান?')) {
+                await db.collection('products').doc(id).delete();
+            }
         }
-        function deleteOrder(i) {
-            let o = JSON.parse(localStorage.getItem('kinzaOrders') || '[]'); o.splice(i, 1);
-            localStorage.setItem('kinzaOrders', JSON.stringify(o)); loadAdminData();
+
+        async function deleteOrder(id) {
+            if(confirm('অর্ডারটি মুছতে চান?')) {
+                await db.collection('orders').doc(id).delete();
+            }
         }
     </script>
 </body>
