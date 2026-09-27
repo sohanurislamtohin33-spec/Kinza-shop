@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KINZA SHOP</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ক্লোজ বাটনের জন্য সামান্য সিএসএস স্টাইল */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: #000;
+        }
+        .modal .box {
+            position: relative;
+        }
+    </style>
 </head>
 <body>
 
@@ -36,18 +54,19 @@
 
 <h3 style="padding:12px 10px 5px; font-size:16px; color:#333;">Just For You</h3>
 <div class="grid" id="grid"></div>
-<p id="loadTxt" style="text-align:center;padding:20px;color:#888;font-size:14px;display:none;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>
+<p id="loadTxt" style="text-align:center;padding:20px;color:#888;font-size:14px;display:none;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>
 
 <div class="nav">
     <div onclick="window.scrollTo({top:0, behavior:'smooth'})">🏠 Home</div>
     <div id="bCart">🛒 Cart</div>
 </div>
 
-<a class="wa" href="https://wa.me/8801XXXXXXXXX" target="_blank">💬</a>
+<a class="wa" href="https://wa.me/8801909242397" target="_blank">💬</a>
 
 <!-- প্রোডাক্ট ডিটেইলস মোডাল (পপআপ) -->
 <div class="modal" id="pModal">
     <div class="box">
+        <span class="close-btn" onclick="closeModalWithHistory()">&times;</span>
         <img id="mImg" class="big-modal-img">
         <h3 id="mTitle" style="margin-top:12px; font-size:16px; color:#333;"></h3>
         <div id="mPrice" class="p" style="font-size:18px; margin:8px 0"></div>
@@ -62,6 +81,7 @@
 <!-- কার্ট মোডাল -->
 <div class="modal" id="cModal">
     <div class="box">
+        <span class="close-btn" onclick="closeModalWithHistory()">&times;</span>
         <h3>Shopping Cart</h3>
         <div id="cItems" style="margin:12px 0;max-height:200px;overflow-y:auto"></div>
         <h3 id="total" style="text-align:right;margin-bottom:10px;"></h3>
@@ -72,6 +92,7 @@
 <!-- চেকআউট মোডাল -->
 <div class="modal" id="chModal">
     <div class="box">
+        <span class="close-btn" onclick="closeModalWithHistory()">&times;</span>
         <h3>ডেলিভারি তথ্য দিন</h3>
         <input id="cName" placeholder="আপনার নাম">
         <input id="cPhone" placeholder="মোবাইল নম্বর">
@@ -127,7 +148,7 @@
     }
     render();
 
-    // ফোনে ব্যাক বাটন প্রেস করলে মোডাল বন্ধ হওয়ার লজিক
+    // মোডাল খোলার ফাংশন
     function openModal(p) {
         sel = p;
         document.getElementById('mImg').src = p.img;
@@ -135,26 +156,31 @@
         document.getElementById('mPrice').innerText = '৳' + p.price;
         document.getElementById('pModal').style.display = 'flex';
         
-        // ব্রাউজার হিস্টোরিতে স্টেট যোগ করা
         history.pushState({ modalOpen: true }, "");
     }
 
+    // মোডাল বন্ধ করার প্রাইমারি ফাংশন
     function closeModal() {
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     }
 
-    // ব্যাক বাটনে প্রেস করলে পপআপ বন্ধ হবে
+    // ম্যানুয়াল ক্লোজ (বাটন/ক্লিকে) ব্যাক হিস্ট্রি অ্যাডজাস্টমেন্টসহ
+    function closeModalWithHistory() {
+        closeModal();
+        if (history.state && history.state.modalOpen) {
+            history.back();
+        }
+    }
+
+    // ফোনে ব্যাক বাটন প্রেস করলে মোডাল বন্ধ হবে
     window.onpopstate = function() {
         closeModal();
     };
 
-    // মোডালের বাইরের ফাঁকা জায়গায় ক্লিক করলেও পপআপ বন্ধ হবে
+    // মোডালের বাইরের ফাঁকা জায়গায় ক্লিক করলে পপআপ বন্ধ হবে
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
-            closeModal();
-            if (history.state && history.state.modalOpen) {
-                history.back();
-            }
+            closeModalWithHistory();
         }
     };
 
@@ -170,8 +196,8 @@
     document.getElementById('addCartBtn').onclick = () => {
         cart.push(sel);
         updCart();
-        closeModal();
-        alert('কার্টে যোগ করা হয়েছে!');
+        closeModalWithHistory();
+        alert('কার্টে যোগ করা হয়েছে!');
     };
 
     document.getElementById('buyNowBtn').onclick = () => {
@@ -179,7 +205,6 @@
         updCart();
         closeModal();
         document.getElementById('chModal').style.display = 'flex';
-        history.pushState({ modalOpen: true }, "");
     };
 
     function openCart() {
@@ -206,7 +231,6 @@
         if(!cart.length) return alert('আপনার কার্ট খালি!');
         closeModal();
         document.getElementById('chModal').style.display = 'flex';
-        history.pushState({ modalOpen: true }, "");
     };
 
     document.getElementById('placeOrder').onclick = () => {
@@ -223,10 +247,10 @@
         });
         localStorage.setItem('kinzaOrders', JSON.stringify(orders));
 
-        alert('আপনার অর্ডার সফলভাবে গৃহীত হয়েছে!');
+        alert('আপনার অর্ডার সফলভাবে গৃহীত হয়েছে!');
         cart = [];
         updCart();
-        closeModal();
+        closeModalWithHistory();
     };
 </script>
 </body>
